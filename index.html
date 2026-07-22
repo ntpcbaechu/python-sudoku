@@ -175,6 +175,14 @@
         }
         .btn-purple:hover { background-color: #59359a; }
 
+        /* 🌟 按鈕選單間的微小分隔線 */
+        .btn-divider {
+            border: none;
+            border-top: 1px dashed #ccc; /* 灰色虛線風格隔開按鈕群組 */
+            margin: 2px 0;
+            width: 100%;
+        }
+
         /* 5. 主遊戲區容器（預設隱藏，點擊開始遊戲後才顯示） */
         .game-container {
             display: none;                   /* 預設隱藏 */
@@ -275,11 +283,11 @@
             opacity: 0.5;
         }
 
-        /* 右側功能按鈕區（復原、暫停、清除、放棄、排名垂直排列） */
+        /* 右側功能按鈕區（依序垂直排列） */
         .action-buttons {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
         }
 
         /* 11. 暫停時覆蓋棋盤的半透明遮罩 */
@@ -436,12 +444,25 @@
             <!-- 1~9 數字按鈕區 -->
             <div class="numpad" id="numpad"></div>
 
-            <!-- 功能按鈕區（復原、暫停、清除、放棄、排名） -->
+            <!-- 功能按鈕區：順序調整為 暫停 (線) 復原 清除 放棄 (線) 排名 -->
             <div class="action-buttons">
-                <button class="btn-info" onclick="undoMove()">↩️<br>復原</button>
+                <!-- 1. 暫停 -->
                 <button class="btn-warning" id="pauseBtn" onclick="togglePause()">⏸️<br>暫停</button>
+                
+                <!-- ➖ 分隔線 1 -->
+                <hr class="btn-divider">
+
+                <!-- 2. 復原 -->
+                <button class="btn-info" onclick="undoMove()">↩️<br>復原</button>
+                <!-- 3. 清除 -->
                 <button class="btn-secondary" onclick="clearBoardKeepTimer()">🧹<br>清除</button>
+                <!-- 4. 放棄 -->
                 <button class="btn-danger" onclick="giveUp()">🏳️<br>放棄</button>
+
+                <!-- ➖ 分隔線 2 -->
+                <hr class="btn-divider">
+
+                <!-- 5. 排名 -->
                 <button class="btn-purple" onclick="openLeaderboard('game')">🏆<br>排名</button>
             </div>
         </div>
@@ -489,29 +510,24 @@
 
     <!-- JavaScript 雲端與遊戲邏輯區塊 (使用 ES6 Module 載入 Firebase) -->
     <script type="module">
-        // 🌐 引入 Firebase 雲端 SDK 模組
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-        // 🌟 你的專屬 Firebase 配置設定
         const firebaseConfig = {
             apiKey: "AIzaSyALmDAZBk6rQON7Ifqd23vHD-niSAG4Fh4",
             authDomain: "python-sudoku.firebaseapp.com",
-            databaseURL: "https://python-sudoku-default-rtdb.firebaseio.com", // 預設資料庫網址
+            databaseURL: "https://python-sudoku-default-rtdb.firebaseio.com",
             projectId: "python-sudoku",
             storageBucket: "python-sudoku.firebasestorage.app",
             messagingSenderId: "26285195175",
             appId: "1:26285195175:web:1b64eb9a22908cbf1c0082"
         };
 
-        // 初始化 Firebase 與 Realtime Database
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // 全局儲存雲端抓下來的即時排行榜資料
         let globalLeaderboardData = { easy: [], medium: [], hard: [], expert: [] };
 
-        // 🌟 監聽 Firebase 雲端資料庫變更（有人通關就會即時自動更新！）
         const leaderboardRef = ref(db, 'leaderboard');
         onValue(leaderboardRef, (snapshot) => {
             const data = snapshot.val();
@@ -520,23 +536,20 @@
             if (data) {
                 Object.keys(data).forEach(diff => {
                     if (data[diff]) {
-                        // 將雲端物件轉成陣列並排序
                         const list = Object.values(data[diff]);
                         list.sort((a, b) => a.seconds - b.seconds);
-                        parsedData[diff] = list.slice(0, 5); // 僅保留 Top 5
+                        parsedData[diff] = list.slice(0, 5);
                     }
                 });
             }
             globalLeaderboardData = parsedData;
         });
 
-        // 通關時把分數推送到 Firebase 雲端資料庫
         window.recordScoreToCloud = function(name, seconds, timeStr, diff) {
             const diffRef = ref(db, `leaderboard/${diff}`);
             push(diffRef, { name, seconds, timeStr, timestamp: Date.now() });
         };
 
-        // 渲染排行榜表格 UI
         window.renderLeaderboardUI = function() {
             const diffs = ['easy', 'medium', 'hard', 'expert'];
 
@@ -575,9 +588,6 @@
 
     <!-- 主遊戲核心邏輯 -->
     <script>
-        // ==========================================
-        // 1. 數獨題庫資料 (0 代表空白格)
-        // ==========================================
         const puzzles = {
             easy: [
                 [0, 0, 0, 2, 6, 0, 7, 0, 1], [6, 8, 0, 0, 7, 0, 0, 9, 0], [1, 9, 0, 0, 0, 4, 5, 0, 0],
@@ -601,20 +611,14 @@
             ]
         };
 
-        // ==========================================
-        // 2. 全局變數定義
-        // ==========================================
-        let currentDifficulty = '';                               // 當前難度
-        let initialBoard = null;                                  // 原始題目備份
-        let currentBoard = null;                                  // 玩家填寫中的動態盤面
-        let moveHistory = [];                                     // 紀錄玩家步驟 (復原用)
-        let selectedCell = null;                                  // 滑鼠點選的格子 {r, c}
-        let timerInterval = null, secondsElapsed = 0;             // 計時器相關變數
-        let gameFinished = false, isPaused = false, isGameStarted = false; // 遊戲狀態標記
+        let currentDifficulty = '';
+        let initialBoard = null;
+        let currentBoard = null;
+        let moveHistory = [];
+        let selectedCell = null;
+        let timerInterval = null, secondsElapsed = 0;
+        let gameFinished = false, isPaused = false, isGameStarted = false;
 
-        // ==========================================
-        // 3. 排行榜 UI 與控制互動
-        // ==========================================
         function openLeaderboard(source = 'home') {
             if (window.renderLeaderboardUI) window.renderLeaderboardUI();
 
@@ -654,9 +658,6 @@
             document.getElementById('rankModal').style.display = 'none';
         }
 
-        // ==========================================
-        // 4. 開始遊戲與返回主頁邏輯
-        // ==========================================
         function startGame() {
             const nameInput = document.getElementById('playerName').value.trim();
             const diffSelect = document.getElementById('difficulty').value;
@@ -742,9 +743,6 @@
             }
         }
 
-        // ==========================================
-        // 5. 計時器控制 logic
-        // ==========================================
         function startTimer() {
             stopTimer();
             secondsElapsed = 0;
@@ -768,9 +766,6 @@
             document.getElementById('timer').innerText = `${mins}:${secs}`;
         }
 
-        // ==========================================
-        // 6. 暫停與繼續邏輯
-        // ==========================================
         function togglePause() {
             if (!isGameStarted || gameFinished) return;
             isPaused = !isPaused;
@@ -786,9 +781,6 @@
             }
         }
 
-        // ==========================================
-        // 7. 渲染棋盤
-        // ==========================================
         function renderBoard() {
             const boardElement = document.getElementById('board');
             boardElement.innerHTML = '';
@@ -842,9 +834,6 @@
             checkWinCondition(hasConflict);
         }
 
-        // ==========================================
-        // 8. 生成數字按鈕與同數字高亮邏輯
-        // ==========================================
         function createNumpad() {
             const numpad = document.getElementById('numpad');
             numpad.innerHTML = '';
@@ -895,9 +884,6 @@
             }
         }
 
-        // ==========================================
-        // 9. 規則判定與通關（上傳 Firebase）
-        // ==========================================
         function checkConflicts() {
             document.querySelectorAll('.cell').forEach(el => el.classList.remove('conflict'));
             let anyConflict = false;
@@ -952,7 +938,6 @@
                 const playerName = document.getElementById('playerDisplay').innerText;
                 const timeStr = document.getElementById('timer').innerText;
 
-                // 🌟 上傳至 Firebase 雲端資料庫
                 if (window.recordScoreToCloud) {
                     window.recordScoreToCloud(playerName, secondsElapsed, timeStr, currentDifficulty);
                 }

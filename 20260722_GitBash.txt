@@ -1,0 +1,570 @@
+
+user@LATITUDE5300 MINGW64 ~
+$ ^C
+
+user@LATITUDE5300 MINGW64 ~
+$ ^[[200~cd python-sudoku~
+bash: $'\E[200~cd': command not found
+
+user@LATITUDE5300 MINGW64 ~
+$ cd python-sudoku
+bash: cd: python-sudoku: No such file or directory
+
+user@LATITUDE5300 MINGW64 ~
+$ cd 200~Desktop\python-sudoku~
+bash: cd: 200~Desktoppython-sudoku~: No such file or directory
+
+user@LATITUDE5300 MINGW64 ~
+$ cd user\Desktop\python-sudoku
+bash: cd: userDesktoppython-sudoku: No such file or directory
+
+user@LATITUDE5300 MINGW64 ~
+$ ^C
+
+user@LATITUDE5300 MINGW64 ~
+$ cd Desktop/python-sudoku
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku
+$ ^C
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku
+$ git remote add origin https://github.com/ntpcbaechu/python-sudoku.git
+fatal: not a git repository (or any of the parent directories): .git
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku
+$ git init
+Initialized empty Git repository in C:/Users/user/Desktop/python-sudoku/.git/
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (master)
+$ git add .
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (master)
+$ git commit -m "Initial commit: Sudoku game"
+[master (root-commit) 1da776d] Initial commit: Sudoku game
+ 2 files changed, 188 insertions(+)
+ create mode 100644 README.md
+ create mode 100644 main.py
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (master)
+$ git branch -M main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git remote add origin https://github.com/ntpcbaechu/python-sudoku.git
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git push -u origin main
+info: please complete authentication in your browser...
+Enumerating objects: 4, done.
+Counting objects: 100% (4/4), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (4/4), done.
+Writing objects: 100% (4/4), 2.50 KiB | 2.50 MiB/s, done.
+Total 4 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+To https://github.com/ntpcbaechu/python-sudoku.git
+ * [new branch]      main -> main
+branch 'main' set up to track 'origin/main'.
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ python main.py
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ python -u main.py
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ winpty python main.py
+winpty: error: cannot start '"C:/Program Files/WindowsApps/Microsoft.DesktopAppInstaller_1.29.280.0_x64__8wekyb3d8bbwe/AppInstallerPythonRedirector.exe" main.py': 存取被拒。 (error 0x5)
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ cd Desktop/python-sudoku
+git add .
+git commit -m "Add HTML web version"
+git push
+bash: cd: Desktop/python-sudoku: No such file or directory
+[main 304d73b] Add HTML web version
+ 1 file changed, 144 insertions(+)
+ create mode 100644 index.html
+Enumerating objects: 4, done.
+Counting objects: 100% (4/4), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 1.92 KiB | 1.92 MiB/s, done.
+Total 3 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+To https://github.com/ntpcbaechu/python-sudoku.git
+   1da776d..304d73b  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git add .
+git commit -m "Add difficulty level selector"
+git push
+[main 3b08892] Add difficulty level selector
+ 1 file changed, 77 insertions(+), 25 deletions(-)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 1.17 KiB | 1.17 MiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/ntpcbaechu/python-sudoku.git
+   304d73b..3b08892  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git add .
+git commit -m "Fix grid borders"
+git push
+[main 415ac04] Fix grid borders
+ 2 files changed, 220 insertions(+), 10 deletions(-)
+ create mode 100644 "index(2_\346\226\260\345\242\236\351\233\243\345\272\246).html"
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 809 bytes | 809.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/ntpcbaechu/python-sudoku.git
+   3b08892..415ac04  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git add .
+git commit -m "Add difficulty level selector"
+git push
+[main c8f5562] Add difficulty level selector
+ 1 file changed, 196 deletions(-)
+ delete mode 100644 "index(2_\346\226\260\345\242\236\351\233\243\345\272\246).html"
+Enumerating objects: 3, done.
+Counting objects: 100% (3/3), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (2/2), 229 bytes | 229.00 KiB/s, done.
+Total 2 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/ntpcbaechu/python-sudoku.git
+   415ac04..c8f5562  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git add .
+git commit -m "Add numpad and real-time conflict highlighting"
+git push
+[main 019361f] Add numpad and real-time conflict highlighting
+ 1 file changed, 181 insertions(+), 42 deletions(-)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 2.26 KiB | 2.26 MiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/ntpcbaechu/python-sudoku.git
+   c8f5562..019361f  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git add .
+git commit -m "Add player name input and timer feature"
+git push
+[main 89c74e5] Add player name input and timer feature
+ 1 file changed, 122 insertions(+), 31 deletions(-)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 1.90 KiB | 1.90 MiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/ntpcbaechu/python-sudoku.git
+   019361f..89c74e5  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git add .
+git commit -m "Hide cursor and style selected cell background"
+git push
+[main 89dbeb3] Hide cursor and style selected cell background
+ 1 file changed, 55 insertions(+), 159 deletions(-)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 1.38 KiB | 1.38 MiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/ntpcbaechu/python-sudoku.git
+   89c74e5..89dbeb3  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git add .
+git commit -m "Add detailed inline code comments"
+git push
+[main 0c78014] Add detailed inline code comments
+ 1 file changed, 248 insertions(+), 73 deletions(-)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 4.32 KiB | 4.32 MiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/ntpcbaechu/python-sudoku.git
+   89dbeb3..0c78014  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git add .
+git commit -m "Fix grid borders, side numpad layout, pause feature and start screen flow"
+git push
+[main 2127317] Fix grid borders, side numpad layout, pause feature and start screen flow
+ 1 file changed, 210 insertions(+), 166 deletions(-)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 3.01 KiB | 3.01 MiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/ntpcbaechu/python-sudoku.git
+   0c78014..2127317  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git add .
+git commit -m "Move pause and reset buttons to right side, hide controls on game start, restore full inline comments"
+git push
+[main 0b18862] Move pause and reset buttons to right side, hide controls on game start, restore full inline comments
+ 1 file changed, 144 insertions(+), 92 deletions(-)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 2.99 KiB | 2.99 MiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/ntpcbaechu/python-sudoku.git
+   2127317..0b18862  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git add .
+git commit -m "Add give up button, require difficulty selection, and restore inline comments"
+git push
+[main 8df77fb] Add give up button, require difficulty selection, and restore inline comments
+ 1 file changed, 77 insertions(+), 37 deletions(-)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 1.32 KiB | 1.32 MiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/ntpcbaechu/python-sudoku.git
+   0b18862..8df77fb  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git add .
+git commit -m "Return to start menu after clicking OK on win alert"
+git push
+[main 54c7f0b] Return to start menu after clicking OK on win alert
+ 1 file changed, 90 insertions(+), 105 deletions(-)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 2.02 KiB | 2.02 MiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/ntpcbaechu/python-sudoku.git
+   8df77fb..54c7f0b  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$
+$ cat << 'EOF' > CHANGELOG.md
+# 🧩 網頁數獨小遊戲 (Sudoku Web Game) - 開發與優化日誌
+
+> **開發目標**：將基礎 Python/HTML 數獨專案，逐步優化為符合現代 UI/UX 標準、流暢無障礙的原生 App 體 驗。
+
+---
+
+## 📅 版本演進歷程 (Version History)
+
+### 🚀 V1.0.0 - 基礎功能建立 (Initial Setup)
+- **初始狀態**：具備 basic 9x9 數獨棋盤，可使用鍵盤填寫數字、計算通關用時與基本違規判定。
+
+---
+
+### 🎨 V1.1.0 - 點擊體驗與游標優化
+- **問題痛點**：點擊 `<input>` 格子時會出現閃爍的文字游標（`I`），且選中樣式不明顯，體驗不夠像遊戲。
+- **修改亮點**：
+  1. CSS 加入 `caret-color: transparent` 徹底隱藏閃爍游標。
+  2. 加入 `.selected` 樣式，點擊格子時背景呈現柔和淡藍高亮（`#bbdefb`）。
+
+---
+
+### 📐 V1.2.0 - 棋盤格線與同數字高亮 (Grid & Highlight Optimization)
+- **問題痛點**：邊框重複疊加導致九宮格線條粗細不一；玩家很難一眼找到盤面上相同的數字。
+- **修改亮點**：
+  1. **重構 CSS 格線**：採用獨立 `gap: 1px` 與灰色背景形成清晰 $1\text{px}$ 細線，精準繪製 $3\times3$ 九宮格黑粗框。
+  2. **同數字全盤高亮**：允許點擊預設（黑色）與已填數字，點擊時全盤所有相同數字同步套用淡黃色背景（`#fff9c4`）。
+  3. **新增超困難 (Expert) 難度**：於選單中新增第 4 種高難度題庫。
+
+---
+
+### 📱 V1.3.0 - 排版重構與遊戲流程控管 (Layout & Game Flow)
+- **問題痛點**：按鈕擺在棋盤下方導致頁面過長需要拉滾輪；開啟網頁就直接計時不夠人性化。
+- **修改亮點**：
+  1. **左右橫向並排**：將 1~9 數字鍵盤移至棋盤右側（1欄9列單直欄排列），畫面收納於單一螢幕免滾輪。
+  2. **開始畫面流程**：預設隱藏棋盤，強迫玩家先輸入「姓名」與下拉選擇「難度」，按下 `▶ 開始遊戲` 後 才展開棋盤與啟動計時。
+  3. **開始後自動隱藏設定欄**：點擊開始後隱藏頂部輸入框，讓介面保持極簡專注。
+  4. **右側新增功能鍵**：新增 `⏸️ 暫停`（含半透明遮罩）與 `🔄 重來` 功能。
+
+---
+
+### 🏳️ V1.4.0 - 選單體驗與極簡視覺優化 (UI Polish & Give Up)
+- **問題痛點**：全盤綠色塊容易導致視覺疲勞；完成遊戲後無法直接返回選單。
+- **修改亮點**：
+  1. **新增「🏳️ 放棄」按鈕**：位於右側按鈕區，點擊確認後可隨時結束當前對局並返回主畫面。
+  2. **強迫選難度**：下拉選單預設為 `-- 請選擇難度 --`，防止玩家誤以預設難度直接開始。
+  3. **通關自動返回**：跳出「🎉 恭喜通關」彈窗後，點擊「確定」自動重置並優雅返回主選單。
+  4. **極簡視覺風**：移除大面積常駐綠色區塊，棋盤保持白底乾淨質感，全靠右側按鈕鎖定提示進度。
+  5. **程式碼全註解**：補齊 HTML / CSS / JavaScript 核心邏輯逐行中文備註，大幅提升可讀性與後續維護性。
+
+---
+
+💡 *本紀錄檔由 Git 版本控制備份，作為 Web 前端開發學習之里程碑紀錄。*
+EOF
+
+git add CHANGELOG.md
+git commit -m "Add CHANGELOG.md detailing incremental update history"
+git push
+warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it
+[main 0b491f4] Add CHANGELOG.md detailing incremental update history
+ 1 file changed, 52 insertions(+)
+ create mode 100644 CHANGELOG.md
+Enumerating objects: 4, done.
+Counting objects: 100% (4/4), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 2.26 KiB | 2.26 MiB/s, done.
+Total 3 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+To https://github.com/ntpcbaechu/python-sudoku.git
+   54c7f0b..0b491f4  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$
+$ cat << 'EOF' > CHANGELOG.md
+# 🧩 網頁數獨小遊戲 (Sudoku Web Game) - 開發與優化日誌
+
+> **開發目標**：將基礎 Python/HTML 數獨專案，逐步優化為符合現代 UI/UX 標準、流暢無障礙的原生 App 體 驗。
+
+---
+
+## 💡 關於版本控制：什麼是 Git Commit Message？
+
+在每次修改完 `index.html` 後執行的三行指令中，第二行：
+`git commit -m "這裡填寫修改備註"`
+
+這個 `-m` 後面的文字稱為 **Commit Message（版本提交備註）**。
+- **程式碼註解**：解釋「這行 Code 在做什麼」。
+- **Commit Message**：上記「這一版跟上一版相比改了什麼」。
+
+它是專案成長日記的標題，能讓開發者清晰追蹤每個版本的修改紀錄。
+
+---
+
+## 📅 版本演進歷程與 Commit 歷史紀錄 (Version History)
+
+### 🚀 V1.0.0 - 基礎功能建立 (Initial Setup)
+- ** Commit Message**: `Initial commit`
+- **初始狀態**：具備 basic 9x9 數獨棋盤，可使用鍵盤填寫數字、計算通關用時與基本違規判定。
+
+---
+
+### 🎨 V1.1.0 - 點擊體驗與游標優化
+- ** Commit Message**: `Fix input cursor visibility and add cell selection style`
+- **問題痛點**：點擊 `<input>` 格子時會出現閃爍的文字游標（`I`），且選中樣式不明顯。
+- **修改亮點**：
+  1. CSS 加入 `caret-color: transparent` 徹底隱藏閃爍游標。
+  2. 加入 `.selected` 樣式，點擊格子時背景呈現柔和淡藍高亮（`#bbdefb`）。
+
+---
+
+### 📐 V1.2.0 - 棋盤格線與同數字高亮 (Grid & Highlight Optimization)
+- ** Commit Message**: `Layout side numpad, add same number highlight and expert mode`
+- **問題痛點**：邊框重複疊加導致九宮格線條粗細不一；玩家很難一眼找到盤面上相同的數字。
+- **修改亮點**：
+  1. **重構 CSS 格線**：採用獨立 `gap: 1px` 與灰色背景形成清晰 1px 細線，精準繪製 $3\times3$ 九宮格 黑粗框。
+  2. **同數字全盤高亮**：點擊預設或已填數字時，全盤所有相同數字同步套用淡黃色背景（`#fff9c4`）。
+  3. **新增超困難 (Expert) 難度**：選單新增第 4 種高難度題庫。
+
+---
+
+### 📱 V1.3.0 - 排版重構與遊戲流程控管 (Layout & Game Flow)
+- ** Commit Message**: `Fix grid borders, side numpad layout, pause feature and start screen flow`
+- **問題痛點**：按鈕擺在棋盤下方導致頁面過長需要拉滾輪；開啟網頁就直接計時不夠人性化。
+- **修改亮點**：
+  1. **左右橫向並排**：將 1~9 數字鍵盤移至棋盤右側（1欄9列單直欄排列），免滾輪。
+  2. **開始畫面流程**：預設隱藏棋盤，強迫玩家先輸入「姓名」與「難度」，按下 `▶ 開始遊戲` 後才展開棋 盤與啟動計時。
+  3. **開始後自動隱藏設定欄**：點擊開始後隱藏頂部輸入框，讓介面保持極簡專注。
+  4. **右側新增功能鍵**：新增 `⏸️ 暫停`（含半透明遮罩）與 `🔄 重來` 功能。
+
+---
+
+### 🏳️ V1.4.0 - 選單體驗、放棄功能與通關自動重置 (UI Polish & Home Flow)
+- ** Commit Message 歷史**:
+  - `Move pause and reset buttons to right side, hide controls on game start, restore full inline comments`
+  - `Add give up button, require difficulty selection, and restore inline comments`
+  - `Clean UI layout without static row green background, restore complete comments`
+  - `Return to start menu after clicking OK on win alert`
+- **問題痛點**：全盤綠色塊容易導致視覺疲勞；完成遊戲或想中途退出時無法直接返回選單。
+- **修改亮點**：
+  1. **功能按鈕擺放**：將 `暫停`、`重來` 與新增的 `🏳️ 放棄` 按鈕移至 1-9 數字鍵右側，視覺比例更對稱 。
+  2. **強迫選難度**：下拉選單預設為 `-- 請選擇難度 --`，防止玩家未選擇就直接開始。
+  3. **通關自動返回**：跳出「🎉 恭喜通關」彈窗後，點擊「確定」自動重置並優雅返回主選單。
+  4. **極簡視覺風**：移除大面積常駐綠色區塊，棋盤保持白底乾淨質感，全靠右側按鈕鎖定提示進度。
+  5. **程式碼全註解**：補齊 HTML / CSS / JavaScript 核心邏輯逐行中文備註。
+
+---
+
+💡 *本紀錄檔由 Git 版本控制備份，作為 Web 前端開發學習之里程碑紀錄。*
+EOF
+
+git add CHANGELOG.md
+git commit -m "Update CHANGELOG.md with Git commit message explanation and updated commit history"
+git push
+warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it
+[main 3edd536] Update CHANGELOG.md with Git commit message explanation and updated commit history
+ 1 file changed, 34 insertions(+), 12 deletions(-)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 1.37 KiB | 1.37 MiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/ntpcbaechu/python-sudoku.git
+   0b491f4..3edd536  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git add .
+git commit -m "Add Leaderboard Feature (V2.0) with localStorage support and top 10 rankings"
+git push
+[main 69096f4] Add Leaderboard Feature (V2.0) with localStorage support and top 10 rankings
+ 1 file changed, 234 insertions(+), 30 deletions(-)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 2.98 KiB | 2.98 MiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/ntpcbaechu/python-sudoku.git
+   3edd536..69096f4  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git add .
+git commit -m "Dynamic leaderboard buttons: Continue/Give up during game, Return Home on main menu"
+git push
+[main 7436c4b] Dynamic leaderboard buttons: Continue/Give up during game, Return Home on main menu
+ 1 file changed, 114 insertions(+), 43 deletions(-)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 1.97 KiB | 1.97 MiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/ntpcbaechu/python-sudoku.git
+   69096f4..7436c4b  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git add .
+git commit -m "Add Undo button and change Reset to Clear (keeps timer running)"
+git push
+[main b525d26] Add Undo button and change Reset to Clear (keeps timer running)
+ 1 file changed, 82 insertions(+), 35 deletions(-)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 1.73 KiB | 1.73 MiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/ntpcbaechu/python-sudoku.git
+   7436c4b..b525d26  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git add .
+git commit -m "Update leaderboard size from TOP 10 to TOP 5"
+git push
+[main 68d17f9] Update leaderboard size from TOP 10 to TOP 5
+ 1 file changed, 15 insertions(+), 19 deletions(-)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 763 bytes | 763.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/ntpcbaechu/python-sudoku.git
+   b525d26..68d17f9  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git add .
+git commit -m "Upgrade to V3.0 with Firebase Realtime Database for cross-device global leaderboard"
+git push
+[main d70b59b] Upgrade to V3.0 with Firebase Realtime Database for cross-device global leaderboard
+ 1 file changed, 99 insertions(+), 70 deletions(-)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 1.79 KiB | 1.79 MiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/ntpcbaechu/python-sudoku.git
+   68d17f9..d70b59b  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git add .
+git commit -m "Reorder side buttons and add subtle dividers for cleaner UI"
+git push
+[main 7c58e1c] Reorder side buttons and add subtle dividers for cleaner UI
+ 1 file changed, 35 insertions(+), 50 deletions(-)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 934 bytes | 934.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/ntpcbaechu/python-sudoku.git
+   d70b59b..7c58e1c  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git add .
+git commit -m "Final UI layout: Pause top, middle three buttons centered, Rank bottom aligned"
+git push
+[main dda53ea] Final UI layout: Pause top, middle three buttons centered, Rank bottom aligned
+ 1 file changed, 21 insertions(+), 26 deletions(-)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 1000 bytes | 1000.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/ntpcbaechu/python-sudoku.git
+   7c58e1c..dda53ea  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$ git add .
+git commit -m "Distribute 1-9 numpad buttons evenly for better UI alignment"
+git push
+[main d638c2c] Distribute 1-9 numpad buttons evenly for better UI alignment
+ 1 file changed, 10 insertions(+), 9 deletions(-)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 718 bytes | 718.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/ntpcbaechu/python-sudoku.git
+   dda53ea..d638c2c  main -> main
+
+user@LATITUDE5300 MINGW64 ~/Desktop/python-sudoku (main)
+$

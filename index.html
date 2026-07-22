@@ -14,23 +14,46 @@
             padding-top: 20px;
         }
         h1 { color: #333; margin-bottom: 10px; }
+
+        /* 控制區與資訊顯示 */
         .controls {
             margin-bottom: 15px;
             display: flex;
-            gap: 10px;
+            flex-wrap: wrap;
+            gap: 12px;
             align-items: center;
+            justify-content: center;
+            background: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
-        select, .btn-action {
-            padding: 8px 16px;
+        .info-bar {
+            display: flex;
+            gap: 20px;
             font-size: 16px;
-            cursor: pointer;
+            font-weight: bold;
+            color: #444;
+            margin-bottom: 15px;
+        }
+        .timer-box {
+            color: #d9534f;
+        }
+
+        input[type="text"].player-input, select, .btn-action {
+            padding: 6px 12px;
+            font-size: 15px;
             border-radius: 5px;
             border: 1px solid #ccc;
+        }
+        input[type="text"].player-input {
+            width: 110px;
         }
         .btn-action {
             background-color: #007bff;
             color: white;
             border: none;
+            cursor: pointer;
         }
         .btn-action:hover { background-color: #0056b3; }
 
@@ -57,7 +80,7 @@
             box-sizing: border-box;
             border-right: 1px solid #ccc;
             border-bottom: 1px solid #ccc;
-            color: #007bff; /* 玩家填入數字預設為藍色 */
+            color: #007bff;
         }
 
         /* 3x3 九宮格粗線 */
@@ -71,7 +94,7 @@
             color: #333 !important;
         }
 
-        /* 重複衝突樣式（標紅） */
+        /* 重複衝突樣式 */
         .conflict {
             background-color: #ffcccc !important;
             color: #dc3545 !important;
@@ -104,7 +127,6 @@
             background-color: #007bff;
             color: #fff;
         }
-        /* 9個都輸入完畢時變灰停用 */
         .num-btn:disabled {
             background-color: #e0e0e0;
             border-color: #ccc;
@@ -118,14 +140,26 @@
 
     <h1>🧩 網頁線上數獨</h1>
     
+    <!-- 控制區：玩家姓名與難度選單 -->
     <div class="controls">
-        <label for="difficulty">選擇難度：</label>
+        <label>玩家姓名：
+            <input type="text" id="playerName" class="player-input" placeholder="請輸入姓名" oninput="updatePlayerDisplay()">
+        </label>
+
+        <label for="difficulty">難度：</label>
         <select id="difficulty" onchange="changeDifficulty()">
             <option value="easy">簡單 (Easy)</option>
             <option value="medium" selected>中等 (Medium)</option>
             <option value="hard">困難 (Hard)</option>
         </select>
-        <button class="btn-action" onclick="resetBoard()">重設棋盤</button>
+
+        <button class="btn-action" onclick="resetBoard()">重新開始</button>
+    </div>
+
+    <!-- 資訊欄：玩家名稱與計時器 -->
+    <div class="info-bar">
+        <div>👤 玩家：<span id="playerDisplay">匿名玩家</span></div>
+        <div class="timer-box">⏱️ 用時：<span id="timer">00:00</span></div>
     </div>
 
     <div id="board" class="grid"></div>
@@ -173,7 +207,43 @@
         let currentDifficulty = 'medium';
         let initialBoard = puzzles[currentDifficulty];
         let currentBoard = JSON.parse(JSON.stringify(initialBoard));
-        let selectedCell = null; // 當前點選的格子 (row, col)
+        let selectedCell = null;
+
+        // 計時器變數
+        let timerInterval = null;
+        let secondsElapsed = 0;
+        let gameFinished = false;
+
+        // 更新玩家名字顯示
+        function updatePlayerDisplay() {
+            const inputVal = document.getElementById('playerName').value.trim();
+            document.getElementById('playerDisplay').innerText = inputVal !== '' ? inputVal : '匿名玩家';
+        }
+
+        // 計時器邏輯
+        function startTimer() {
+            stopTimer();
+            secondsElapsed = 0;
+            gameFinished = false;
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+            const secs = (secondsElapsed % 60).toString().padStart(2, '0');
+            document.getElementById('timer').innerText = `${mins}:${secs}`;
+        }
 
         function renderBoard() {
             const boardElement = document.getElementById('board');
@@ -198,13 +268,12 @@
                         input.value = val;
                     }
 
-                    // 點擊格子事件
                     input.onclick = function() {
                         selectCell(r, c);
                     };
 
-                    // 鍵盤直接輸入事件
                     input.oninput = function() {
+                        if (gameFinished) return;
                         const num = parseInt(this.value);
                         if (/^[1-9]$/.test(this.value)) {
                             currentBoard[r][c] = num;
@@ -212,19 +281,22 @@
                             this.value = '';
                             currentBoard[r][c] = 0;
                         }
-                        checkConflicts();
-                        updateNumpad();
+                        handleBoardChange();
                     };
 
                     boardElement.appendChild(input);
                 }
             }
             createNumpad();
-            checkConflicts();
-            updateNumpad();
+            handleBoardChange();
         }
 
-        // 建立 1~9 數字按鈕區
+        function handleBoardChange() {
+            const hasConflict = checkConflicts();
+            updateNumpad();
+            checkWinCondition(hasConflict);
+        }
+
         function createNumpad() {
             const numpad = document.getElementById('numpad');
             numpad.innerHTML = '';
@@ -234,13 +306,13 @@
                 btn.id = `num-btn-${i}`;
                 btn.innerText = i;
                 btn.onclick = function() {
+                    if (gameFinished) return;
                     if (selectedCell) {
                         const { r, c } = selectedCell;
                         if (initialBoard[r][c] === 0) {
                             currentBoard[r][c] = i;
                             document.getElementById(`cell-${r}-${c}`).value = i;
-                            checkConflicts();
-                            updateNumpad();
+                            handleBoardChange();
                         }
                     }
                 };
@@ -248,19 +320,17 @@
             }
         }
 
-        // 選擇某個格子
         function selectCell(r, c) {
             document.querySelectorAll('.cell').forEach(el => el.classList.remove('selected'));
             selectedCell = { r, c };
             document.getElementById(`cell-${r}-${c}`).classList.add('selected');
         }
 
-        // 功能 2：檢查並標紅所有重複衝突的號碼
+        // 檢查衝突並回傳是否有衝突
         function checkConflicts() {
-            // 清除之前的衝突狀態
             document.querySelectorAll('.cell').forEach(el => el.classList.remove('conflict'));
+            let anyConflict = false;
 
-            // 檢查每一格
             for (let r = 0; r < 9; r++) {
                 for (let c = 0; c < 9; c++) {
                     const num = currentBoard[r][c];
@@ -268,21 +338,18 @@
 
                     let hasConflict = false;
 
-                    // 1. 檢查同列
                     for (let j = 0; j < 9; j++) {
                         if (j !== c && currentBoard[r][j] === num) {
                             hasConflict = true;
                             document.getElementById(`cell-${r}-${j}`).classList.add('conflict');
                         }
                     }
-                    // 2. 檢查同行
                     for (let i = 0; i < 9; i++) {
                         if (i !== r && currentBoard[i][c] === num) {
                             hasConflict = true;
                             document.getElementById(`cell-${i}-${c}`).classList.add('conflict');
                         }
                     }
-                    // 3. 檢查 3x3 九宮格
                     let bx = Math.floor(c / 3) * 3, by = Math.floor(r / 3) * 3;
                     for (let i = by; i < by + 3; i++) {
                         for (let j = bx; j < bx + 3; j++) {
@@ -295,12 +362,13 @@
 
                     if (hasConflict) {
                         document.getElementById(`cell-${r}-${c}`).classList.add('conflict');
+                        anyConflict = true;
                     }
                 }
             }
+            return anyConflict;
         }
 
-        // 功能 1：檢查每個數字出現次數，若滿 9 個（且無違規）則停用按鈕
         function updateNumpad() {
             for (let num = 1; num <= 9; num++) {
                 let count = 0;
@@ -320,13 +388,33 @@
 
                 const btn = document.getElementById(`num-btn-${num}`);
                 if (btn) {
-                    // 滿 9 個且沒有衝突，按鈕變灰停用
-                    if (count >= 9 && !hasConflict) {
-                        btn.disabled = true;
-                    } else {
-                        btn.disabled = false;
+                    btn.disabled = (count >= 9 && !hasConflict);
+                }
+            }
+        }
+
+        // 檢查是否成功解題勝出
+        function checkWinCondition(hasConflict) {
+            if (hasConflict) return;
+
+            let isFull = true;
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    if (currentBoard[r][c] === 0) {
+                        isFull = false;
+                        break;
                     }
                 }
+            }
+
+            if (isFull && !gameFinished) {
+                gameFinished = true;
+                stopTimer();
+                const playerName = document.getElementById('playerDisplay').innerText;
+                const timeStr = document.getElementById('timer').innerText;
+                setTimeout(() => {
+                    alert(`🎉 恭喜 ${playerName} 順利完成數獨！\n⏱️ 總共耗時：${timeStr}`);
+                }, 200);
             }
         }
 
@@ -340,9 +428,12 @@
         function resetBoard() {
             currentBoard = JSON.parse(JSON.stringify(initialBoard));
             selectedCell = null;
+            startTimer();
             renderBoard();
         }
 
+        // 初始化
+        startTimer();
         renderBoard();
     </script>
 </body>

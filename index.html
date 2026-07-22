@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <!-- 設定網頁編碼為 UTF-8，確保中文不會變亂碼 -->
+    <!-- 設定網頁編碼為 UTF-8，確保中文顯示正常不變亂碼 -->
     <meta charset="UTF-8">
-    <!-- 設定響應式網頁，讓手機與平板縮放正常 -->
+    <!-- 設定響應式網頁，讓手機、平板與電腦縮放皆正常 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>網頁版數獨小遊戲</title>
     
-    <!-- CSS 樣式區塊：控制網頁所有元件的外觀與排版 -->
+    <!-- CSS 樣式區塊：控制網頁整體與元件的外觀排版 -->
     <style>
         /* 1. 全局背景與字型設定 */
         body {
             font-family: Arial, sans-serif; /* 使用清晰無襯線字體 */
             display: flex;                   /* 使用 Flex 佈局讓元件垂直置中 */
-            flex-direction: column;          /* 垂直方向排列 */
-            align-items: center;             /* 水平置中 */
+            flex-direction: column;          /* 元件由上至下垂直排列 */
+            align-items: center;             /* 水平方向置中對齊 */
             background-color: #f0f2f5;      /* 柔和的淡灰色背景 */
             padding-top: 20px;
             margin: 0;
@@ -27,12 +27,12 @@
             margin-bottom: 15px; 
         }
 
-        /* 2. 頂部控制面板（玩家姓名輸入、難度選擇、開始遊戲按鈕） */
+        /* 2. 頂部控制面板（包含姓名輸入、難度選單、開始按鈕） */
         .controls {
             margin-bottom: 15px;
             display: flex;
-            flex-wrap: wrap;                 /* 螢幕太小自動換行 */
-            gap: 12px;                       /* 元件之間的間距 */
+            flex-wrap: wrap;                 /* 畫面太窄時自動換行 */
+            gap: 12px;                       /* 各控制元件之間的間距 */
             align-items: center;
             justify-content: center;
             background: #fff;                /* 白色卡片背景 */
@@ -41,7 +41,7 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.1); /* 淡淡陰影增強質感 */
         }
 
-        /* 3. 玩家名字與計時器顯示欄 */
+        /* 3. 玩家姓名與計時器顯示欄 */
         .info-bar {
             display: flex;
             gap: 20px;
@@ -53,7 +53,7 @@
         /* 計時器數字顏色（紅色） */
         .timer-box { color: #d9534f; }
 
-        /* 輸入框、下拉選單、一般按鈕的通用樣式 */
+        /* 輸入框、下拉選單、主要按鈕的通用樣式 */
         input[type="text"].player-input, select, .btn-action {
             padding: 6px 12px;
             font-size: 15px;
@@ -63,7 +63,7 @@
         /* 玩家姓名輸入框寬度 */
         input[type="text"].player-input { width: 120px; }
 
-        /* 「開始遊戲」藍色按鈕 */
+        /* 「▶ 開始遊戲」藍色主按鈕樣式 */
         .btn-action {
             background-color: #007bff;
             color: white;
@@ -120,8 +120,8 @@
 
         /* 5. 主遊戲區容器（預設隱藏，點擊開始遊戲後才顯示） */
         .game-container {
-            display: none;                   /* 預設隱藏，等待開始 */
-            flex-direction: row;             /* 棋盤與按鈕區橫向排列 */
+            display: none;                   /* 預設隱藏 */
+            flex-direction: row;             /* 棋盤與右側按鈕區橫向並排 */
             align-items: flex-start;
             gap: 20px;
             background: #fff;
@@ -131,14 +131,14 @@
             position: relative;
         }
 
-        /* 6. 數獨棋盤網格樣式：修復內部灰色細邊框 */
+        /* 6. 數獨棋盤網格樣式：使用獨立 Gap 形成清晰灰色細邊框 */
         .grid {
             display: grid;
-            grid-template-columns: repeat(9, 45px); /* 9 欄，每欄 45px */
-            grid-template-rows: repeat(9, 45px);    /* 9 列，每列 45px */
-            background-color: #ccc;                 /* 灰色細線背景 */
-            border: 4px solid #000;                 /* 最外圍黑粗框 */
-            gap: 1px;                               /* 格子間隔 1px，形成灰色細邊框 */
+            grid-template-columns: repeat(9, 45px); /* 固定 9 欄，每欄 45px */
+            grid-template-rows: repeat(9, 45px);    /* 固定 9 列，每列 45px */
+            background-color: #ccc;                 /* 灰色細線背景底色 */
+            border: 4px solid #000;                 /* 最外層黑色粗邊框 */
+            gap: 1px;                               /* 格子與格子之間的 1px 間隔 */
             box-sizing: content-box;
         }
 
@@ -149,28 +149,28 @@
             text-align: center;              /* 數字水平置中 */
             font-size: 20px;
             font-weight: bold;
-            outline: none;                   /* 移除預設黑框 */
-            border: none;                    /* 邊框交由 grid gap 處理 */
+            outline: none;                   /* 移除點擊時預設的黑框 */
+            border: none;                    /* 邊框交由外層 gap/border 處理 */
             background-color: #fff;          /* 格子預設純白背景 */
             box-sizing: border-box;
-            color: #007bff;                  /* 玩家填入數字預設為藍色 */
-            cursor: pointer;                 /* 懸停手勢 */
-            caret-color: transparent;        /* 隱藏閃爍游標 I */
-            user-select: none;               /* 禁止藍色文字反白 */
-            transition: background-color 0.2s ease;
+            color: #007bff;                  /* 玩家填入數字預設為鮮豔藍色 */
+            cursor: pointer;                 /* 滑鼠移上去顯示點擊手勢 */
+            caret-color: transparent;        /* 隱藏輸入框閃爍的游標 I */
+            user-select: none;               /* 禁止藍色反白選取文字 */
+            transition: background-color 0.2s ease; /* 背景色彩轉換平滑動畫 */
         }
 
-        /* 8. 3x3 九宮格黑粗線劃分 */
-        .border-right-thick { border-right: 3px solid #000 !important; }  /* 第 3、6 欄加黑粗線 */
-        .border-bottom-thick { border-bottom: 3px solid #000 !important; }/* 第 3、6 列加黑粗線 */
+        /* 8. 3x3 九宮格黑粗線精準劃分 */
+        .border-right-thick { border-right: 3px solid #000 !important; }  /* 第 3、6 欄右側加黑色粗線 */
+        .border-bottom-thick { border-bottom: 3px solid #000 !important; }/* 第 3、6 列底部加黑色粗線 */
 
-        /* 9. 格子各種動態狀態樣式 */
+        /* 9. 格子動態狀態樣式 */
         .given { 
-            background-color: #f8f9fa; 
-            color: #333 !important;          /* 預設題目數字：深灰色 */
+            background-color: #f8f9fa;       /* 題目預設底色：極淺灰 */
+            color: #333 !important;          /* 題目預設數字：深灰色 */
         }
         .selected {
-            background-color: #bbdefb !important; /* 選中的格子：深淡藍底色 */
+            background-color: #bbdefb !important; /* 選中的格子：柔和淡藍底色 */
         }
         .same-number {
             background-color: #fff9c4 !important; /* 全盤相同數字：溫柔淡黃底色 */
@@ -179,12 +179,8 @@
             background-color: #ffcccc !important; /* 違規重複的數字：粉紅底色 */
             color: #dc3545 !important;          /* 違規重複的數字：鮮紅字體 */
         }
-        .completed {
-            background-color: #d4edda !important; /* 完成整行/列：淡綠底色 */
-            color: #155724 !important;          /* 完成整行/列：深綠字體 */
-        }
 
-        /* 10. 右側面板：1-9 數字鍵盤 + 右側功能按鈕 (暫停/重來/放棄) */
+        /* 10. 右側按鈕面板排版 (1-9 直排 + 功能按鈕直排) */
         .side-panel {
             display: flex;
             flex-direction: row;             /* 橫向並排 */
@@ -213,7 +209,7 @@
             background-color: #007bff; 
             color: #fff; 
         }
-        /* 數字填滿 9 個時自動變灰停用 */
+        /* 當某數字在盤面填滿 9 個且無誤時自動變灰停用 */
         .num-btn:disabled {
             background-color: #e0e0e0;
             border-color: #ccc;
@@ -231,7 +227,7 @@
 
         /* 11. 暫停時覆蓋棋盤的半透明遮罩 */
         .pause-overlay {
-            display: none;
+            display: none;                   /* 預設隱藏 */
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.95);
@@ -247,16 +243,17 @@
 </head>
 <body>
 
-    <!-- 網頁頁首標題 -->
+    <!-- 網頁標題 -->
     <h1>🧩 網頁線上數獨</h1>
     
-    <!-- 頂部設定區塊（開始遊戲後會隱藏） -->
+    <!-- 頂部設定區塊（遊戲開始後會隱藏） -->
     <div class="controls" id="controlsBlock">
+        <!-- 玩家姓名輸入框 -->
         <label>玩家姓名：
             <input type="text" id="playerName" class="player-input" placeholder="請輸入姓名">
         </label>
 
-        <!-- 難度選單：預設為「請選擇難度」強迫玩家選擇 -->
+        <!-- 難度下拉選單（預設為請選擇難度） -->
         <label for="difficulty">難度：</label>
         <select id="difficulty">
             <option value="" selected disabled>-- 請選擇難度 --</option>
@@ -266,26 +263,27 @@
             <option value="expert">超困難 (Expert)</option>
         </select>
 
+        <!-- 開始遊戲按鈕 -->
         <button class="btn-action" id="startBtn" onclick="startGame()">▶ 開始遊戲</button>
     </div>
 
-    <!-- 玩家資訊與計時器 (遊戲開始後才顯示) -->
+    <!-- 玩家資訊與計時器（遊戲開始後才顯示） -->
     <div class="info-bar" id="infoBar" style="display: none;">
         <div>👤 玩家：<span id="playerDisplay">匿名玩家</span></div>
         <div class="timer-box">⏱️ 用時：<span id="timer">00:00</span></div>
     </div>
 
-    <!-- 遊戲主區塊（棋盤 + 右側 1-9 直排 + 右側暫停/重來/放棄按鈕） -->
+    <!-- 主遊戲區塊（棋盤 + 右側 1-9 直排按鈕 + 功能鍵） -->
     <div class="game-container" id="gameContainer">
-        <!-- 暫停時的半透明遮罩 -->
+        <!-- 暫停遮罩層 -->
         <div class="pause-overlay" id="pauseOverlay">⏸️ 遊戲暫停中</div>
 
-        <!-- 81 格數獨棋盤 -->
+        <!-- 81 格數獨棋盤容器 -->
         <div id="board" class="grid"></div>
 
-        <!-- 右側面板：1-9 數字鍵盤 + 功能按鈕 -->
+        <!-- 右側按鈕面板 -->
         <div class="side-panel">
-            <!-- 1~9 數字鍵盤 (直排) -->
+            <!-- 1~9 數字按鈕區 -->
             <div class="numpad" id="numpad"></div>
 
             <!-- 功能按鈕區（暫停、重來、放棄） -->
@@ -297,7 +295,7 @@
         </div>
     </div>
 
-    <!-- JavaScript 程式邏輯區塊 -->
+    <!-- JavaScript 邏輯區塊 -->
     <script>
         // ==========================================
         // 1. 數獨題庫資料 (0 代表空白格)
@@ -328,47 +326,48 @@
         // ==========================================
         // 2. 全局變數定義
         // ==========================================
-        let currentDifficulty = '';                               // 當前難度 (預設空白)
-        let initialBoard = null;                                  // 原始題目
-        let currentBoard = null;                                  // 玩家當前盤面
-        let selectedCell = null;                                  // 選中的格子
-        let timerInterval = null, secondsElapsed = 0;             // 計時器變數
+        let currentDifficulty = '';                               // 當前難度
+        let initialBoard = null;                                  // 原始題目備份
+        let currentBoard = null;                                  // 玩家填寫中的動態盤面
+        let selectedCell = null;                                  // 滑鼠點選的格子 {r, c}
+        let timerInterval = null, secondsElapsed = 0;             // 計時器相關變數
         let gameFinished = false, isPaused = false, isGameStarted = false; // 遊戲狀態標記
 
         // ==========================================
-        // 3. 開始遊戲邏輯 (強迫檢查姓名與難度)
+        // 3. 開始遊戲邏輯 (檢查姓名與難度 -> 展開遊戲)
         // ==========================================
         function startGame() {
             const nameInput = document.getElementById('playerName').value.trim();
             const diffSelect = document.getElementById('difficulty').value;
 
-            // 驗證 1：檢查是否填寫姓名
+            // 驗證 1：未輸入姓名提醒
             if (!nameInput) {
                 alert('請先輸入玩家姓名！');
                 document.getElementById('playerName').focus();
                 return;
             }
 
-            // 驗證 2：檢查是否選擇難度
+            // 驗證 2：未選擇難度提醒
             if (!diffSelect) {
                 alert('請選擇遊戲難度！');
                 document.getElementById('difficulty').focus();
                 return;
             }
 
-            // 更新玩家資訊與難度設定
+            // 設定難度與題目
             currentDifficulty = diffSelect;
             initialBoard = puzzles[currentDifficulty];
             currentBoard = JSON.parse(JSON.stringify(initialBoard));
 
+            // 更新 UI 玩家姓名
             document.getElementById('playerDisplay').innerText = nameInput;
             
-            // 隱藏頂部設定欄，顯示資訊列與棋盤
+            // 隱藏頂部設定列，顯示資訊列與遊戲容器
             document.getElementById('controlsBlock').style.display = 'none';
             document.getElementById('infoBar').style.display = 'flex';
             document.getElementById('gameContainer').style.display = 'flex';
 
-            // 初始化狀態
+            // 初始化狀態標記
             isGameStarted = true;
             isPaused = false;
             document.getElementById('pauseOverlay').style.display = 'none';
@@ -378,26 +377,31 @@
         }
 
         // ==========================================
-        // 4. 放棄遊戲邏輯 (回到主選單)
+        // 4. 返回主頁面邏輯 (用於放棄或通關後重置)
         // ==========================================
+        function returnToHome() {
+            stopTimer(); // 關閉計時器
+            isGameStarted = false;
+            isPaused = false;
+
+            // 隱藏遊戲區域，恢復顯示頂部設定列
+            document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('infoBar').style.display = 'none';
+            document.getElementById('controlsBlock').style.display = 'flex';
+
+            // 重置下拉選單回預設提示
+            document.getElementById('difficulty').selectedIndex = 0;
+        }
+
+        // 放棄遊戲按鈕邏輯
         function giveUp() {
             if (confirm('確定要放棄這局遊戲嗎？')) {
-                stopTimer(); // 停止計時器
-                isGameStarted = false;
-                isPaused = false;
-
-                // 隱藏棋盤與資訊列，重新顯示頂部設定列
-                document.getElementById('gameContainer').style.display = 'none';
-                document.getElementById('infoBar').style.display = 'none';
-                document.getElementById('controlsBlock').style.display = 'flex';
-
-                // 重置難度下拉選單預設值
-                document.getElementById('difficulty').selectedIndex = 0;
+                returnToHome();
             }
         }
 
         // ==========================================
-        // 5. 計時器控制邏輯
+        // 5. 計時器控制 logic
         // ==========================================
         function startTimer() {
             stopTimer();
@@ -441,11 +445,11 @@
         }
 
         // ==========================================
-        // 7. 渲染棋盤畫面 (點擊預設數字可高亮)
+        // 7. 渲染棋盤 (點擊預設數字可高亮)
         // ==========================================
         function renderBoard() {
             const boardElement = document.getElementById('board');
-            boardElement.innerHTML = '';
+            boardElement.innerHTML = ''; // 清空舊畫面
 
             for (let r = 0; r < 9; r++) {
                 for (let c = 0; c < 9; c++) {
@@ -455,23 +459,23 @@
                     input.className = 'cell'; 
                     input.id = `cell-${r}-${c}`;
 
-                    // 九宮格 3x3 粗邊框
+                    // 九宮格 3x3 黑粗線邊框
                     if (c === 2 || c === 5) input.classList.add('border-right-thick');
                     if (r === 2 || r === 5) input.classList.add('border-bottom-thick');
 
                     const val = currentBoard[r][c];
                     if (initialBoard[r][c] !== 0) {
                         input.value = val;
-                        input.readOnly = true; // 使用 readOnly 替代 disabled，允許點擊高亮但不能直接編輯
+                        input.readOnly = true; // readOnly 代替 disabled，允許點擊高亮但不能直接編輯
                         input.classList.add('given');
                     } else if (val !== 0) {
                         input.value = val;
                     }
 
-                    // 點擊事件：預設數字與玩家填入的數字皆可點選
+                    // 點擊事件：預設數字與玩家填入的數字皆可點選觸發高亮
                     input.onclick = () => selectCell(r, c);
 
-                    // 鍵盤輸入事件
+                    // 手動鍵盤輸入事件
                     input.oninput = function() {
                         if (gameFinished || isPaused) return;
                         const num = parseInt(this.value);
@@ -489,7 +493,6 @@
 
         function handleBoardChange() {
             const hasConflict = checkConflicts();
-            checkCompletedUnits();
             updateNumpad();
             if (selectedCell) highlightSameNumbers(currentBoard[selectedCell.r][selectedCell.c]);
             checkWinCondition(hasConflict);
@@ -533,6 +536,7 @@
             if (selectedNum !== 0) highlightSameNumbers(selectedNum);
         }
 
+        // 全盤相同數字淡黃底高亮
         function highlightSameNumbers(num) {
             document.querySelectorAll('.cell').forEach(el => el.classList.remove('same-number'));
             if (!num || num === 0) return;
@@ -547,7 +551,7 @@
         }
 
         // ==========================================
-        // 9. 規則判定（重複標紅 / 完成標綠 / 勝負判定）
+        // 9. 規則判定（衝突重複標紅 / 數字按鈕停用 / 勝負判定）
         // ==========================================
         function checkConflicts() {
             document.querySelectorAll('.cell').forEach(el => el.classList.remove('conflict'));
@@ -574,29 +578,7 @@
             return anyConflict;
         }
 
-        function checkCompletedUnits() {
-            document.querySelectorAll('.cell').forEach(el => el.classList.remove('completed'));
-
-            for (let r = 0; r < 9; r++) {
-                let rowVals = currentBoard[r];
-                let isFull = rowVals.every(v => v !== 0);
-                let hasConflict = rowVals.some((v, c) => document.getElementById(`cell-${r}-${c}`)?.classList.contains('conflict'));
-                if (isFull && !hasConflict) {
-                    for (let c = 0; c < 9; c++) document.getElementById(`cell-${r}-${c}`).classList.add('completed');
-                }
-            }
-
-            for (let c = 0; c < 9; c++) {
-                let colVals = [];
-                for (let r = 0; r < 9; r++) colVals.push(currentBoard[r][c]);
-                let isFull = colVals.every(v => v !== 0);
-                let hasConflict = colVals.some((v, r) => document.getElementById(`cell-${r}-${c}`)?.classList.contains('conflict'));
-                if (isFull && !hasConflict) {
-                    for (let r = 0; r < 9; r++) document.getElementById(`cell-${r}-${c}`).classList.add('completed');
-                }
-            }
-        }
-
+        // 當某數字填滿 9 個且無違規時，自動變灰停用右側按鈕
         function updateNumpad() {
             for (let num = 1; num <= 9; num++) {
                 let count = 0, hasConflict = false;
@@ -613,6 +595,7 @@
             }
         }
 
+        // 通關勝利判定：點擊彈窗確定後自動返回主頁面
         function checkWinCondition(hasConflict) {
             if (hasConflict) return;
             let isFull = true;
@@ -628,10 +611,12 @@
 
                 setTimeout(() => {
                     alert(`🎉 恭喜 ${playerName} 順利完成數獨！\n⏱️ 總共耗時：${timeStr}`);
+                    returnToHome(); // 🌟 點擊確定後，自動返回初始設定頁面
                 }, 200);
             }
         }
 
+        // 重來（重置棋盤狀態）
         function resetBoard() {
             if (!isGameStarted) return;
             currentBoard = JSON.parse(JSON.stringify(initialBoard));

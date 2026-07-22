@@ -15,7 +15,6 @@
         }
         h1 { color: #333; margin-bottom: 10px; }
 
-        /* 控制區與資訊顯示 */
         .controls {
             margin-bottom: 15px;
             display: flex;
@@ -36,9 +35,7 @@
             color: #444;
             margin-bottom: 15px;
         }
-        .timer-box {
-            color: #d9534f;
-        }
+        .timer-box { color: #d9534f; }
 
         input[type="text"].player-input, select, .btn-action {
             padding: 6px 12px;
@@ -46,9 +43,7 @@
             border-radius: 5px;
             border: 1px solid #ccc;
         }
-        input[type="text"].player-input {
-            width: 110px;
-        }
+        input[type="text"].player-input { width: 110px; }
         .btn-action {
             background-color: #007bff;
             color: white;
@@ -57,7 +52,6 @@
         }
         .btn-action:hover { background-color: #0056b3; }
 
-        /* 棋盤整體樣式 */
         .grid {
             display: grid;
             grid-template-columns: repeat(9, 45px);
@@ -68,7 +62,6 @@
             margin-bottom: 15px;
         }
 
-        /* 每個格子基礎線條 */
         .cell {
             width: 45px;
             height: 45px;
@@ -81,36 +74,34 @@
             border-right: 1px solid #ccc;
             border-bottom: 1px solid #ccc;
             color: #007bff;
+            cursor: pointer;
+            
+            /* 關鍵：隱藏文字閃爍游標，並禁止滑鼠選取藍藍的文字區塊 */
+            caret-color: transparent;
+            user-select: none;
         }
 
-        /* 3x3 九宮格粗線 */
         .cell:nth-child(3n) { border-right: 3px solid #000 !important; }
         .cell:nth-child(9n) { border-right: none !important; }
         .row-border { border-bottom: 3px solid #000 !important; }
 
-        /* 預設題目樣式 */
-        .given {
-            background-color: #e9ecef;
-            color: #333 !important;
+        .given { 
+            background-color: #e9ecef; 
+            color: #333 !important; 
+            cursor: default;
         }
 
-        /* 重複衝突樣式 */
-        .conflict {
-            background-color: #ffcccc !important;
-            color: #dc3545 !important;
-        }
-
-        /* 點擊選中的格子 */
+        /* 點擊選中的格子：背景顏色明顯加深 */
         .selected {
-            background-color: #e2e3e5 !important;
+            background-color: #bbdefb !important; /* 柔和加深的亮藍底色 */
         }
 
-        /* 下方 1~9 數字按鈕鍵盤 */
-        .numpad {
-            display: flex;
-            gap: 8px;
-            margin-top: 5px;
+        .conflict { 
+            background-color: #ffcccc !important; 
+            color: #dc3545 !important; 
         }
+
+        .numpad { display: flex; gap: 8px; margin-top: 5px; }
         .num-btn {
             width: 40px;
             height: 40px;
@@ -121,12 +112,8 @@
             color: #007bff;
             border-radius: 5px;
             cursor: pointer;
-            transition: all 0.2s;
         }
-        .num-btn:hover:not(:disabled) {
-            background-color: #007bff;
-            color: #fff;
-        }
+        .num-btn:hover:not(:disabled) { background-color: #007bff; color: #fff; }
         .num-btn:disabled {
             background-color: #e0e0e0;
             border-color: #ccc;
@@ -140,7 +127,6 @@
 
     <h1>🧩 網頁線上數獨</h1>
     
-    <!-- 控制區：玩家姓名與難度選單 -->
     <div class="controls">
         <label>玩家姓名：
             <input type="text" id="playerName" class="player-input" placeholder="請輸入姓名" oninput="updatePlayerDisplay()">
@@ -156,51 +142,30 @@
         <button class="btn-action" onclick="resetBoard()">重新開始</button>
     </div>
 
-    <!-- 資訊欄：玩家名稱與計時器 -->
     <div class="info-bar">
         <div>👤 玩家：<span id="playerDisplay">匿名玩家</span></div>
         <div class="timer-box">⏱️ 用時：<span id="timer">00:00</span></div>
     </div>
 
     <div id="board" class="grid"></div>
-
-    <!-- 數字按鈕區 -->
     <div class="numpad" id="numpad"></div>
 
     <script>
         const puzzles = {
             easy: [
-                [0, 0, 0, 2, 6, 0, 7, 0, 1],
-                [6, 8, 0, 0, 7, 0, 0, 9, 0],
-                [1, 9, 0, 0, 0, 4, 5, 0, 0],
-                [8, 2, 0, 1, 0, 0, 0, 4, 0],
-                [0, 0, 4, 6, 0, 2, 9, 0, 0],
-                [0, 5, 0, 0, 0, 3, 0, 2, 8],
-                [0, 0, 9, 3, 0, 0, 0, 7, 4],
-                [0, 4, 0, 0, 5, 0, 0, 3, 6],
-                [7, 0, 3, 0, 1, 8, 0, 0, 0]
+                [0, 0, 0, 2, 6, 0, 7, 0, 1], [6, 8, 0, 0, 7, 0, 0, 9, 0], [1, 9, 0, 0, 0, 4, 5, 0, 0],
+                [8, 2, 0, 1, 0, 0, 0, 4, 0], [0, 0, 4, 6, 0, 2, 9, 0, 0], [0, 5, 0, 0, 0, 3, 0, 2, 8],
+                [0, 0, 9, 3, 0, 0, 0, 7, 4], [0, 4, 0, 0, 5, 0, 0, 3, 6], [7, 0, 3, 0, 1, 8, 0, 0, 0]
             ],
             medium: [
-                [5, 3, 0, 0, 7, 0, 0, 0, 0],
-                [6, 0, 0, 1, 9, 5, 0, 0, 0],
-                [0, 9, 8, 0, 0, 0, 0, 6, 0],
-                [8, 0, 0, 0, 6, 0, 0, 0, 3],
-                [4, 0, 0, 8, 0, 3, 0, 0, 1],
-                [7, 0, 0, 0, 2, 0, 0, 0, 6],
-                [0, 6, 0, 0, 0, 0, 2, 8, 0],
-                [0, 0, 0, 4, 1, 9, 0, 0, 5],
-                [0, 0, 0, 0, 8, 0, 0, 7, 9]
+                [5, 3, 0, 0, 7, 0, 0, 0, 0], [6, 0, 0, 1, 9, 5, 0, 0, 0], [0, 9, 8, 0, 0, 0, 0, 6, 0],
+                [8, 0, 0, 0, 6, 0, 0, 0, 3], [4, 0, 0, 8, 0, 3, 0, 0, 1], [7, 0, 0, 0, 2, 0, 0, 0, 6],
+                [0, 6, 0, 0, 0, 0, 2, 8, 0], [0, 0, 0, 4, 1, 9, 0, 0, 5], [0, 0, 0, 0, 8, 0, 0, 7, 9]
             ],
             hard: [
-                [0, 0, 0, 6, 0, 0, 4, 0, 0],
-                [7, 0, 0, 0, 0, 3, 6, 0, 0],
-                [0, 0, 0, 0, 9, 1, 0, 8, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 5, 0, 1, 8, 0, 0, 0, 3],
-                [0, 0, 0, 3, 0, 6, 0, 4, 5],
-                [0, 4, 0, 2, 0, 0, 0, 6, 0],
-                [9, 0, 3, 0, 0, 0, 0, 0, 0],
-                [0, 2, 0, 0, 0, 0, 1, 0, 0]
+                [0, 0, 0, 6, 0, 0, 4, 0, 0], [7, 0, 0, 0, 0, 3, 6, 0, 0], [0, 0, 0, 0, 9, 1, 0, 8, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 5, 0, 1, 8, 0, 0, 0, 3], [0, 0, 0, 3, 0, 6, 0, 4, 5],
+                [0, 4, 0, 2, 0, 0, 0, 6, 0], [9, 0, 3, 0, 0, 0, 0, 0, 0], [0, 2, 0, 0, 0, 0, 1, 0, 0]
             ]
         };
 
@@ -208,35 +173,22 @@
         let initialBoard = puzzles[currentDifficulty];
         let currentBoard = JSON.parse(JSON.stringify(initialBoard));
         let selectedCell = null;
+        let timerInterval = null, secondsElapsed = 0, gameFinished = false;
 
-        // 計時器變數
-        let timerInterval = null;
-        let secondsElapsed = 0;
-        let gameFinished = false;
-
-        // 更新玩家名字顯示
         function updatePlayerDisplay() {
             const inputVal = document.getElementById('playerName').value.trim();
             document.getElementById('playerDisplay').innerText = inputVal !== '' ? inputVal : '匿名玩家';
         }
 
-        // 計時器邏輯
         function startTimer() {
             stopTimer();
-            secondsElapsed = 0;
-            gameFinished = false;
+            secondsElapsed = 0; gameFinished = false;
             updateTimerDisplay();
-            timerInterval = setInterval(() => {
-                secondsElapsed++;
-                updateTimerDisplay();
-            }, 1000);
+            timerInterval = setInterval(() => { secondsElapsed++; updateTimerDisplay(); }, 1000);
         }
 
         function stopTimer() {
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-            }
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
         }
 
         function updateTimerDisplay() {
@@ -248,47 +200,29 @@
         function renderBoard() {
             const boardElement = document.getElementById('board');
             boardElement.innerHTML = '';
-
             for (let r = 0; r < 9; r++) {
                 for (let c = 0; c < 9; c++) {
                     const input = document.createElement('input');
-                    input.type = 'text';
-                    input.maxLength = 1;
-                    input.className = 'cell';
-                    input.id = `cell-${r}-${c}`;
-
+                    input.type = 'text'; input.maxLength = 1; input.className = 'cell'; input.id = `cell-${r}-${c}`;
                     if (r === 2 || r === 5) input.classList.add('row-border');
 
                     const val = currentBoard[r][c];
                     if (initialBoard[r][c] !== 0) {
-                        input.value = val;
-                        input.disabled = true;
-                        input.classList.add('given');
-                    } else if (val !== 0) {
-                        input.value = val;
-                    }
+                        input.value = val; input.disabled = true; input.classList.add('given');
+                    } else if (val !== 0) input.value = val;
 
-                    input.onclick = function() {
-                        selectCell(r, c);
-                    };
-
+                    input.onclick = () => selectCell(r, c);
                     input.oninput = function() {
                         if (gameFinished) return;
                         const num = parseInt(this.value);
-                        if (/^[1-9]$/.test(this.value)) {
-                            currentBoard[r][c] = num;
-                        } else {
-                            this.value = '';
-                            currentBoard[r][c] = 0;
-                        }
+                        if (/^[1-9]$/.test(this.value)) currentBoard[r][c] = num;
+                        else { this.value = ''; currentBoard[r][c] = 0; }
                         handleBoardChange();
                     };
-
                     boardElement.appendChild(input);
                 }
             }
-            createNumpad();
-            handleBoardChange();
+            createNumpad(); handleBoardChange();
         }
 
         function handleBoardChange() {
@@ -302,18 +236,14 @@
             numpad.innerHTML = '';
             for (let i = 1; i <= 9; i++) {
                 const btn = document.createElement('button');
-                btn.className = 'num-btn';
-                btn.id = `num-btn-${i}`;
-                btn.innerText = i;
+                btn.className = 'num-btn'; btn.id = `num-btn-${i}`; btn.innerText = i;
                 btn.onclick = function() {
-                    if (gameFinished) return;
-                    if (selectedCell) {
-                        const { r, c } = selectedCell;
-                        if (initialBoard[r][c] === 0) {
-                            currentBoard[r][c] = i;
-                            document.getElementById(`cell-${r}-${c}`).value = i;
-                            handleBoardChange();
-                        }
+                    if (gameFinished || !selectedCell) return;
+                    const { r, c } = selectedCell;
+                    if (initialBoard[r][c] === 0) {
+                        currentBoard[r][c] = i;
+                        document.getElementById(`cell-${r}-${c}`).value = i;
+                        handleBoardChange();
                     }
                 };
                 numpad.appendChild(btn);
@@ -326,40 +256,22 @@
             document.getElementById(`cell-${r}-${c}`).classList.add('selected');
         }
 
-        // 檢查衝突並回傳是否有衝突
         function checkConflicts() {
             document.querySelectorAll('.cell').forEach(el => el.classList.remove('conflict'));
             let anyConflict = false;
-
             for (let r = 0; r < 9; r++) {
                 for (let c = 0; c < 9; c++) {
                     const num = currentBoard[r][c];
                     if (num === 0) continue;
-
                     let hasConflict = false;
-
-                    for (let j = 0; j < 9; j++) {
-                        if (j !== c && currentBoard[r][j] === num) {
-                            hasConflict = true;
-                            document.getElementById(`cell-${r}-${j}`).classList.add('conflict');
-                        }
-                    }
-                    for (let i = 0; i < 9; i++) {
-                        if (i !== r && currentBoard[i][c] === num) {
-                            hasConflict = true;
-                            document.getElementById(`cell-${i}-${c}`).classList.add('conflict');
-                        }
-                    }
+                    for (let j = 0; j < 9; j++) if (j !== c && currentBoard[r][j] === num) hasConflict = true;
+                    for (let i = 0; i < 9; i++) if (i !== r && currentBoard[i][c] === num) hasConflict = true;
                     let bx = Math.floor(c / 3) * 3, by = Math.floor(r / 3) * 3;
                     for (let i = by; i < by + 3; i++) {
                         for (let j = bx; j < bx + 3; j++) {
-                            if ((i !== r || j !== c) && currentBoard[i][j] === num) {
-                                hasConflict = true;
-                                document.getElementById(`cell-${i}-${j}`).classList.add('conflict');
-                            }
+                            if ((i !== r || j !== c) && currentBoard[i][j] === num) hasConflict = true;
                         }
                     }
-
                     if (hasConflict) {
                         document.getElementById(`cell-${r}-${c}`).classList.add('conflict');
                         anyConflict = true;
@@ -371,40 +283,25 @@
 
         function updateNumpad() {
             for (let num = 1; num <= 9; num++) {
-                let count = 0;
-                let hasConflict = false;
-
+                let count = 0, hasConflict = false;
                 for (let r = 0; r < 9; r++) {
                     for (let c = 0; c < 9; c++) {
                         if (currentBoard[r][c] === num) {
                             count++;
-                            const cellEl = document.getElementById(`cell-${r}-${c}`);
-                            if (cellEl && cellEl.classList.contains('conflict')) {
-                                hasConflict = true;
-                            }
+                            if (document.getElementById(`cell-${r}-${c}`)?.classList.contains('conflict')) hasConflict = true;
                         }
                     }
                 }
-
                 const btn = document.getElementById(`num-btn-${num}`);
-                if (btn) {
-                    btn.disabled = (count >= 9 && !hasConflict);
-                }
+                if (btn) btn.disabled = (count >= 9 && !hasConflict);
             }
         }
 
-        // 檢查是否成功解題勝出
         function checkWinCondition(hasConflict) {
             if (hasConflict) return;
-
             let isFull = true;
             for (let r = 0; r < 9; r++) {
-                for (let c = 0; c < 9; c++) {
-                    if (currentBoard[r][c] === 0) {
-                        isFull = false;
-                        break;
-                    }
-                }
+                for (let c = 0; c < 9; c++) if (currentBoard[r][c] === 0) { isFull = false; break; }
             }
 
             if (isFull && !gameFinished) {
@@ -412,6 +309,7 @@
                 stopTimer();
                 const playerName = document.getElementById('playerDisplay').innerText;
                 const timeStr = document.getElementById('timer').innerText;
+
                 setTimeout(() => {
                     alert(`🎉 恭喜 ${playerName} 順利完成數獨！\n⏱️ 總共耗時：${timeStr}`);
                 }, 200);
@@ -419,8 +317,7 @@
         }
 
         function changeDifficulty() {
-            const select = document.getElementById('difficulty');
-            currentDifficulty = select.value;
+            currentDifficulty = document.getElementById('difficulty').value;
             initialBoard = puzzles[currentDifficulty];
             resetBoard();
         }
@@ -432,7 +329,6 @@
             renderBoard();
         }
 
-        // 初始化
         startTimer();
         renderBoard();
     </script>

@@ -13,7 +13,26 @@
             background-color: #f0f2f5;
             padding-top: 30px;
         }
-        h1 { color: #333; }
+        h1 { color: #333; margin-bottom: 10px; }
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        select, button {
+            padding: 8px 16px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+        button:hover { background-color: #0056b3; }
         .grid {
             display: grid;
             grid-template-columns: repeat(9, 45px);
@@ -41,40 +60,65 @@
             font-weight: bold;
             color: #333;
         }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        button:hover { background-color: #0056b3; }
     </style>
 </head>
 <body>
 
     <h1>🧩 網頁線上數獨</h1>
-    <p>直接在格子上輸入 1-9 的數字，重複會提示違規！</p>
+    
+    <!-- 新增難度選單與按鈕控制區 -->
+    <div class="controls">
+        <label for="difficulty">選擇難度：</label>
+        <select id="difficulty" onchange="changeDifficulty()">
+            <option value="easy">簡單 (Easy)</option>
+            <option value="medium" selected>中等 (Medium)</option>
+            <option value="hard">困難 (Hard)</option>
+        </select>
+        <button onclick="resetBoard()">重設棋盤</button>
+    </div>
 
     <div id="board" class="grid"></div>
 
-    <button onclick="resetBoard()">重設棋盤</button>
-
     <script>
-        const initialBoard = [
-            [5, 3, 0, 0, 7, 0, 0, 0, 0],
-            [6, 0, 0, 1, 9, 5, 0, 0, 0],
-            [0, 9, 8, 0, 0, 0, 0, 6, 0],
-            [8, 0, 0, 0, 6, 0, 0, 0, 3],
-            [4, 0, 0, 8, 0, 3, 0, 0, 1],
-            [7, 0, 0, 0, 2, 0, 0, 0, 6],
-            [0, 6, 0, 0, 0, 0, 2, 8, 0],
-            [0, 0, 0, 4, 1, 9, 0, 0, 5],
-            [0, 0, 0, 0, 8, 0, 0, 7, 9]
-        ];
+        // 三種不同難度的預設題目庫
+        const puzzles = {
+            easy: [
+                [0, 0, 0, 2, 6, 0, 7, 0, 1],
+                [6, 8, 0, 0, 7, 0, 0, 9, 0],
+                [1, 9, 0, 0, 0, 4, 5, 0, 0],
+                [8, 2, 0, 1, 0, 0, 0, 4, 0],
+                [0, 0, 4, 6, 0, 2, 9, 0, 0],
+                [0, 5, 0, 0, 0, 3, 0, 2, 8],
+                [0, 0, 9, 3, 0, 0, 0, 7, 4],
+                [0, 4, 0, 0, 5, 0, 0, 3, 6],
+                [7, 0, 3, 0, 1, 8, 0, 0, 0]
+            ],
+            medium: [
+                [5, 3, 0, 0, 7, 0, 0, 0, 0],
+                [6, 0, 0, 1, 9, 5, 0, 0, 0],
+                [0, 9, 8, 0, 0, 0, 0, 6, 0],
+                [8, 0, 0, 0, 6, 0, 0, 0, 3],
+                [4, 0, 0, 8, 0, 3, 0, 0, 1],
+                [7, 0, 0, 0, 2, 0, 0, 0, 6],
+                [0, 6, 0, 0, 0, 0, 2, 8, 0],
+                [0, 0, 0, 4, 1, 9, 0, 0, 5],
+                [0, 0, 0, 0, 8, 0, 0, 7, 9]
+            ],
+            hard: [
+                [0, 0, 0, 6, 0, 0, 4, 0, 0],
+                [7, 0, 0, 0, 0, 3, 6, 0, 0],
+                [0, 0, 0, 0, 9, 1, 0, 8, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 5, 0, 1, 8, 0, 0, 0, 3],
+                [0, 0, 0, 3, 0, 6, 0, 4, 5],
+                [0, 4, 0, 2, 0, 0, 0, 6, 0],
+                [9, 0, 3, 0, 0, 0, 0, 0, 0],
+                [0, 2, 0, 0, 0, 0, 1, 0, 0]
+            ]
+        };
 
+        let currentDifficulty = 'medium';
+        let initialBoard = puzzles[currentDifficulty];
         let currentBoard = JSON.parse(JSON.stringify(initialBoard));
 
         function isValid(b, num, row, col) {
@@ -131,6 +175,14 @@
                     boardElement.appendChild(input);
                 }
             }
+        }
+
+        // 切換難度觸發
+        function changeDifficulty() {
+            const select = document.getElementById('difficulty');
+            currentDifficulty = select.value;
+            initialBoard = puzzles[currentDifficulty];
+            resetBoard();
         }
 
         function resetBoard() {

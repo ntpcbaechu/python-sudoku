@@ -162,7 +162,7 @@
         }
         .btn-danger:hover { background-color: #bd2130; }
 
-        /* 右下角排名按鈕 - 紫色小圖示 */
+        /* 右下角排名按鈕 */
         .btn-purple {
             background-color: #6f42c1;
             color: white;
@@ -174,14 +174,6 @@
             font-size: 13px;
         }
         .btn-purple:hover { background-color: #59359a; }
-
-        /* 🌟 按鈕選單間的微小分隔線 */
-        .btn-divider {
-            border: none;
-            border-top: 1px dashed #ccc; /* 灰色虛線風格隔開按鈕群組 */
-            margin: 2px 0;
-            width: 100%;
-        }
 
         /* 5. 主遊戲區容器（預設隱藏，點擊開始遊戲後才顯示） */
         .game-container {
@@ -250,6 +242,7 @@
             display: flex;
             flex-direction: row;             /* 橫向並排 */
             gap: 12px;
+            align-self: stretch;             /* 讓面板高度伸展與棋盤等高 */
         }
 
         /* 1-9 數字按鈕區（單直欄排列） */
@@ -283,11 +276,19 @@
             opacity: 0.5;
         }
 
-        /* 右側功能按鈕區（依序垂直排列） */
+        /* 🌟 右側功能按鈕區：使用 space-between 實現「頂部暫停 / 中間三個按鈕 / 置底排名」 */
         .action-buttons {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            justify-content: space-between;  /* 精髓：將頂、中、底按鈕自動均勻推開 */
+            height: 100%;                    /* 填滿整體高度與棋盤等高 */
+        }
+
+        /* 中間三個按鈕（復原、清除、放棄）組合容器 */
+        .middle-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;                        /* 中間三個按鈕維持精緻間距 */
         }
 
         /* 11. 暫停時覆蓋棋盤的半透明遮罩 */
@@ -444,25 +445,19 @@
             <!-- 1~9 數字按鈕區 -->
             <div class="numpad" id="numpad"></div>
 
-            <!-- 功能按鈕區：順序調整為 暫停 (線) 復原 清除 放棄 (線) 排名 -->
+            <!-- 功能按鈕區：完美分為 頂部暫停、中間三鍵、置底排名 -->
             <div class="action-buttons">
-                <!-- 1. 暫停 -->
+                <!-- 1. 最頂部：暫停 -->
                 <button class="btn-warning" id="pauseBtn" onclick="togglePause()">⏸️<br>暫停</button>
                 
-                <!-- ➖ 分隔線 1 -->
-                <hr class="btn-divider">
+                <!-- 2. 中間區：復原、清除、放棄 -->
+                <div class="middle-buttons">
+                    <button class="btn-info" onclick="undoMove()">↩️<br>復原</button>
+                    <button class="btn-secondary" onclick="clearBoardKeepTimer()">🧹<br>清除</button>
+                    <button class="btn-danger" onclick="giveUp()">🏳️<br>放棄</button>
+                </div>
 
-                <!-- 2. 復原 -->
-                <button class="btn-info" onclick="undoMove()">↩️<br>復原</button>
-                <!-- 3. 清除 -->
-                <button class="btn-secondary" onclick="clearBoardKeepTimer()">🧹<br>清除</button>
-                <!-- 4. 放棄 -->
-                <button class="btn-danger" onclick="giveUp()">🏳️<br>放棄</button>
-
-                <!-- ➖ 分隔線 2 -->
-                <hr class="btn-divider">
-
-                <!-- 5. 排名 -->
+                <!-- 3. 最底部：排名（精準對齊 9 號） -->
                 <button class="btn-purple" onclick="openLeaderboard('game')">🏆<br>排名</button>
             </div>
         </div>

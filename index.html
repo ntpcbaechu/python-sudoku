@@ -86,7 +86,7 @@
         }
         .btn-rank:hover { background-color: #59359a; }
 
-        /* 4. 功能按鈕通用樣式（重來按鈕 - 灰色） */
+        /* 4. 右側功能按鈕通用樣式（清除按鈕 - 灰色） */
         .btn-secondary {
             background-color: #6c757d;
             color: white;
@@ -103,12 +103,26 @@
         .side-panel .btn-secondary,
         .side-panel .btn-warning,
         .side-panel .btn-danger,
-        .side-panel .btn-purple {
+        .side-panel .btn-purple,
+        .side-panel .btn-info {
             width: 50px;
-            padding: 8px 4px;
-            font-size: 13px;
+            padding: 6px 2px;
+            font-size: 12px;
             box-sizing: border-box;
         }
+
+        /* 功能按鈕通用樣式（復原按鈕 - 水藍色） */
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .btn-info:hover { background-color: #138496; }
 
         /* 功能按鈕通用樣式（暫停 / 繼續按鈕 - 黃色/綠色） */
         .btn-warning {
@@ -261,11 +275,11 @@
             opacity: 0.5;
         }
 
-        /* 右側功能按鈕區（暫停、重來、放棄、排名垂直排列） */
+        /* 右側功能按鈕區（復原、暫停、清除、放棄、排名垂直排列） */
         .action-buttons {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
 
         /* 11. 暫停時覆蓋棋盤的半透明遮罩 */
@@ -422,12 +436,14 @@
             <!-- 1~9 數字按鈕區 -->
             <div class="numpad" id="numpad"></div>
 
-            <!-- 功能按鈕區（暫停、重來、放棄、右下角排名） -->
+            <!-- 功能按鈕區（復原、暫停、清除、放棄、排名） -->
             <div class="action-buttons">
+                <!-- 🌟 新增「復原」按鈕：回到上一步 -->
+                <button class="btn-info" onclick="undoMove()">↩️<br>復原</button>
                 <button class="btn-warning" id="pauseBtn" onclick="togglePause()">⏸️<br>暫停</button>
-                <button class="btn-secondary" onclick="resetBoard()">🔄<br>重來</button>
+                <!-- 🌟 改為「清除」按鈕：清除所有玩家填寫的數字，但時間繼續算 -->
+                <button class="btn-secondary" onclick="clearBoardKeepTimer()">🧹<br>清除</button>
                 <button class="btn-danger" onclick="giveUp()">🏳️<br>放棄</button>
-                <!-- 🌟 右下角排名按鈕 (遊戲中情境：點擊自動暫停) -->
                 <button class="btn-purple" onclick="openLeaderboard('game')">🏆<br>排名</button>
             </div>
         </div>
@@ -464,12 +480,9 @@
                 </div>
             </div>
 
-            <!-- 動態底部按鈕區（根據開起的情境自動切換按鈕） -->
+            <!-- 動態底部按鈕區 -->
             <div class="modal-footer">
-                <!-- 首頁情境按鈕 -->
                 <button class="btn-secondary" id="btnRankHome" onclick="closeLeaderboard()">🏠 返回首頁</button>
-                
-                <!-- 遊戲中情境按鈕 -->
                 <button class="btn-success" id="btnRankContinue" onclick="continueGameFromRank()">▶ 繼續遊戲</button>
                 <button class="btn-danger" id="btnRankGiveUp" onclick="giveUpFromRank()">🏳️ 放棄遊戲</button>
             </div>
@@ -510,12 +523,13 @@
         let currentDifficulty = '';                               // 當前難度
         let initialBoard = null;                                  // 原始題目備份
         let currentBoard = null;                                  // 玩家填寫中的動態盤面
+        let moveHistory = [];                                     // 🌟 紀錄玩家填數字紀錄的陣列 (歷史紀錄)
         let selectedCell = null;                                  // 滑鼠點選的格子 {r, c}
         let timerInterval = null, secondsElapsed = 0;             // 計時器相關變數
         let gameFinished = false, isPaused = false, isGameStarted = false; // 遊戲狀態標記
 
         // ==========================================
-        // 3. 排行榜 (Leaderboard) 核心邏輯與情境控制
+        // 3. 排行榜 (Leaderboard) 核心邏輯
         // ==========================================
         function getLeaderboardData() {
             const data = localStorage.getItem('sudoku_leaderboard');
@@ -527,7 +541,6 @@
             localStorage.setItem('sudoku_leaderboard', JSON.stringify(data));
         }
 
-        // 開啟排行榜 (傳入 source: 'home' 或是 'game')
         function openLeaderboard(source = 'home') {
             renderLeaderboardUI();
 
@@ -536,15 +549,13 @@
             const btnGiveUp = document.getElementById('btnRankGiveUp');
 
             if (source === 'game') {
-                // 情境 A：遊戲中開啟 -> 自動觸發暫停，顯示「繼續遊戲」與「放棄」按鈕
                 if (isGameStarted && !gameFinished && !isPaused) {
-                    togglePause(); // 自動調用暫停
+                    togglePause();
                 }
                 btnHome.style.display = 'none';
                 btnContinue.style.display = 'inline-block';
                 btnGiveUp.style.display = 'inline-block';
             } else {
-                // 情境 B：首頁開啟 -> 顯示「返回首頁」按鈕
                 btnHome.style.display = 'inline-block';
                 btnContinue.style.display = 'none';
                 btnGiveUp.style.display = 'none';
@@ -553,27 +564,22 @@
             document.getElementById('rankModal').style.display = 'flex';
         }
 
-        // 排行榜按鈕 1：從排行榜點擊「▶ 繼續遊戲」
         function continueGameFromRank() {
             closeLeaderboard();
-            // 如果當前處於暫停狀態，自動解除暫停接續遊戲
             if (isPaused) {
                 togglePause();
             }
         }
 
-        // 排行榜按鈕 2：從排行榜點擊「🏳️ 放棄遊戲」
         function giveUpFromRank() {
             closeLeaderboard();
-            giveUp(); // 調用原有的放棄邏輯（會帶有確認視窗）
+            giveUp();
         }
 
-        // 關閉排行榜彈窗
         function closeLeaderboard() {
             document.getElementById('rankModal').style.display = 'none';
         }
 
-        // 渲染排行榜表格 UI (顯示前 10 名)
         function renderLeaderboardUI() {
             const boardData = getLeaderboardData();
             const diffs = ['easy', 'medium', 'hard', 'expert'];
@@ -610,7 +616,6 @@
             });
         }
 
-        // 紀錄通關成績至排行榜 (僅保留短於此難度前 10 名)
         function recordScore(name, seconds, timeStr, diff) {
             const data = getLeaderboardData();
             if (!data[diff]) data[diff] = [];
@@ -656,7 +661,8 @@
             document.getElementById('pauseOverlay').style.display = 'none';
             document.getElementById('pauseBtn').innerHTML = '⏸️<br>暫停';
 
-            resetBoard();
+            startTimer(); // 啟動計時
+            resetBoardStateOnly(); // 初始化盤面，不重置時間
         }
 
         function returnToHome() {
@@ -674,6 +680,42 @@
         function giveUp() {
             if (confirm('確定要放棄這局遊戲嗎？')) {
                 returnToHome();
+            }
+        }
+
+        // 🌟 新增：清除所有玩家填寫的數字，但時間繼續算
+        function clearBoardKeepTimer() {
+            if (!isGameStarted || gameFinished || isPaused) return;
+            if (confirm('確定要清除所有已填寫的數字嗎？（計時將不會停止）')) {
+                currentBoard = JSON.parse(JSON.stringify(initialBoard));
+                moveHistory = []; // 清空操作歷史
+                selectedCell = null;
+                renderBoard();
+            }
+        }
+
+        // 🌟 新增：復原功能 (Undo)
+        function undoMove() {
+            if (!isGameStarted || gameFinished || isPaused) return;
+            if (moveHistory.length === 0) return; // 沒有動作可復原
+
+            const lastMove = moveHistory.pop(); // 取出上一個步驟 {r, c, oldVal, newVal}
+            currentBoard[lastMove.r][lastMove.c] = lastMove.oldVal;
+
+            // 更新畫面上該格子的文字
+            const cellEl = document.getElementById(`cell-${lastMove.r}-${lastMove.c}`);
+            if (cellEl) {
+                cellEl.value = lastMove.oldVal !== 0 ? lastMove.oldVal : '';
+            }
+
+            selectCell(lastMove.r, lastMove.c); // 選中復原的那一格
+            handleBoardChange();
+        }
+
+        // 紀錄一次操作步驟
+        function recordMove(r, c, oldVal, newVal) {
+            if (oldVal !== newVal) {
+                moveHistory.push({ r, c, oldVal, newVal });
             }
         }
 
@@ -752,9 +794,14 @@
 
                     input.oninput = function() {
                         if (gameFinished || isPaused) return;
+                        const oldVal = currentBoard[r][c];
                         const num = parseInt(this.value);
-                        if (/^[1-9]$/.test(this.value)) currentBoard[r][c] = num;
-                        else { this.value = ''; currentBoard[r][c] = 0; }
+                        let newVal = 0;
+                        if (/^[1-9]$/.test(this.value)) newVal = num;
+                        else this.value = '';
+
+                        currentBoard[r][c] = newVal;
+                        recordMove(r, c, oldVal, newVal); // 紀錄步驟以利復原
                         handleBoardChange();
                     };
 
@@ -787,8 +834,10 @@
                     if (gameFinished || isPaused || !selectedCell) return;
                     const { r, c } = selectedCell;
                     if (initialBoard[r][c] === 0) {
+                        const oldVal = currentBoard[r][c];
                         currentBoard[r][c] = i;
                         document.getElementById(`cell-${r}-${c}`).value = i;
+                        recordMove(r, c, oldVal, i); // 紀錄步驟以利復原
                         handleBoardChange();
                     }
                 };
@@ -804,7 +853,7 @@
             });
             selectedCell = { r, c };
             const cellEl = document.getElementById(`cell-${r}-${c}`);
-            cellEl.classList.add('selected');
+            if (cellEl) cellEl.classList.add('selected');
 
             const selectedNum = currentBoard[r][c];
             if (selectedNum !== 0) highlightSameNumbers(selectedNum);
@@ -867,7 +916,6 @@
             }
         }
 
-        // 通關勝利判定：紀錄成績至排行榜，並在點擊確定後自動開啟英雄榜與返回主選單
         function checkWinCondition(hasConflict) {
             if (hasConflict) return;
             let isFull = true;
@@ -881,25 +929,24 @@
                 const playerName = document.getElementById('playerDisplay').innerText;
                 const timeStr = document.getElementById('timer').innerText;
 
-                // 自動寫入排行榜紀錄 (保留前 10 名)
                 recordScore(playerName, secondsElapsed, timeStr, currentDifficulty);
 
                 setTimeout(() => {
                     alert(`🎉 恭喜 ${playerName} 順利完成數獨！\n⏱️ 總共耗時：${timeStr}\n你的成績已自動登錄至英雄榜！`);
                     returnToHome();
-                    openLeaderboard('home'); // 通關後自動開啟首頁情境排行榜！
+                    openLeaderboard('home');
                 }, 200);
             }
         }
 
-        function resetBoard() {
-            if (!isGameStarted) return;
+        // 僅重置盤面狀態（不重置計時器）
+        function resetBoardStateOnly() {
             currentBoard = JSON.parse(JSON.stringify(initialBoard));
+            moveHistory = [];
             selectedCell = null;
             isPaused = false;
             document.getElementById('pauseOverlay').style.display = 'none';
             document.getElementById('pauseBtn').innerHTML = '⏸️<br>暫停';
-            startTimer();
             renderBoard();
         }
     </script>

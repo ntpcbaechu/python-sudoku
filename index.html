@@ -11,70 +11,106 @@
             flex-direction: column;
             align-items: center;
             background-color: #f0f2f5;
-            padding-top: 30px;
+            padding-top: 20px;
         }
         h1 { color: #333; margin-bottom: 10px; }
         .controls {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             display: flex;
             gap: 10px;
             align-items: center;
         }
-        select, button {
+        select, .btn-action {
             padding: 8px 16px;
             font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
             border: 1px solid #ccc;
         }
-        button {
+        .btn-action {
             background-color: #007bff;
             color: white;
             border: none;
         }
-        button:hover { background-color: #0056b3; }
+        .btn-action:hover { background-color: #0056b3; }
 
-        /* 棋盤整體樣式與外框 */
+        /* 棋盤整體樣式 */
         .grid {
             display: grid;
             grid-template-columns: repeat(9, 45px);
             grid-template-rows: repeat(9, 45px);
             background-color: #000;
-            border: 4px solid #000; /* 最外圍超粗黑框 */
+            border: 4px solid #000;
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
-        /* 每個格子的基礎線條 (細灰色線) */
+        /* 每個格子基礎線條 */
         .cell {
             width: 45px;
             height: 45px;
             text-align: center;
             font-size: 20px;
+            font-weight: bold;
             outline: none;
             background-color: #fff;
             box-sizing: border-box;
             border-right: 1px solid #ccc;
             border-bottom: 1px solid #ccc;
+            color: #007bff; /* 玩家填入數字預設為藍色 */
         }
 
-        /* 3x3 九宮格分隔粗線 (垂直線) */
-        .cell:nth-child(3n) { 
-            border-right: 3px solid #000 !important; 
-        }
-        .cell:nth-child(9n) { 
-            border-right: none !important; 
-        }
+        /* 3x3 九宮格粗線 */
+        .cell:nth-child(3n) { border-right: 3px solid #000 !important; }
+        .cell:nth-child(9n) { border-right: none !important; }
+        .row-border { border-bottom: 3px solid #000 !important; }
 
-        /* 3x3 九宮格分隔粗線 (水平線) */
-        .row-border { 
-            border-bottom: 3px solid #000 !important; 
-        }
-
+        /* 預設題目樣式 */
         .given {
             background-color: #e9ecef;
+            color: #333 !important;
+        }
+
+        /* 重複衝突樣式（標紅） */
+        .conflict {
+            background-color: #ffcccc !important;
+            color: #dc3545 !important;
+        }
+
+        /* 點擊選中的格子 */
+        .selected {
+            background-color: #e2e3e5 !important;
+        }
+
+        /* 下方 1~9 數字按鈕鍵盤 */
+        .numpad {
+            display: flex;
+            gap: 8px;
+            margin-top: 5px;
+        }
+        .num-btn {
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
             font-weight: bold;
-            color: #333;
+            border: 1px solid #007bff;
+            background-color: #fff;
+            color: #007bff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .num-btn:hover:not(:disabled) {
+            background-color: #007bff;
+            color: #fff;
+        }
+        /* 9個都輸入完畢時變灰停用 */
+        .num-btn:disabled {
+            background-color: #e0e0e0;
+            border-color: #ccc;
+            color: #a0a0a0;
+            cursor: not-allowed;
+            opacity: 0.6;
         }
     </style>
 </head>
@@ -89,10 +125,13 @@
             <option value="medium" selected>中等 (Medium)</option>
             <option value="hard">困難 (Hard)</option>
         </select>
-        <button onclick="resetBoard()">重設棋盤</button>
+        <button class="btn-action" onclick="resetBoard()">重設棋盤</button>
     </div>
 
     <div id="board" class="grid"></div>
+
+    <!-- 數字按鈕區 -->
+    <div class="numpad" id="numpad"></div>
 
     <script>
         const puzzles = {
@@ -134,18 +173,7 @@
         let currentDifficulty = 'medium';
         let initialBoard = puzzles[currentDifficulty];
         let currentBoard = JSON.parse(JSON.stringify(initialBoard));
-
-        function isValid(b, num, row, col) {
-            for (let j = 0; j < 9; j++) if (b[row][j] === num && col !== j) return false;
-            for (let i = 0; i < 9; i++) if (b[i][col] === num && row !== i) return false;
-            let bx = Math.floor(col / 3) * 3, by = Math.floor(row / 3) * 3;
-            for (let i = by; i < by + 3; i++) {
-                for (let j = bx; j < bx + 3; j++) {
-                    if (b[i][j] === num && (i !== row || j !== col)) return false;
-                }
-            }
-            return true;
-        }
+        let selectedCell = null; // 當前點選的格子 (row, col)
 
         function renderBoard() {
             const boardElement = document.getElementById('board');
@@ -157,8 +185,8 @@
                     input.type = 'text';
                     input.maxLength = 1;
                     input.className = 'cell';
+                    input.id = `cell-${r}-${c}`;
 
-                    // 第 3 列與第 6 列下方加粗黑線
                     if (r === 2 || r === 5) input.classList.add('row-border');
 
                     const val = currentBoard[r][c];
@@ -170,24 +198,134 @@
                         input.value = val;
                     }
 
+                    // 點擊格子事件
+                    input.onclick = function() {
+                        selectCell(r, c);
+                    };
+
+                    // 鍵盤直接輸入事件
                     input.oninput = function() {
                         const num = parseInt(this.value);
                         if (/^[1-9]$/.test(this.value)) {
-                            if (isValid(currentBoard, num, r, c)) {
-                                currentBoard[r][c] = num;
-                                this.style.color = '#007bff';
-                            } else {
-                                alert(`❌ 違規！數字 ${num} 在同行、同列或九宮格已存在。`);
-                                this.value = '';
-                                currentBoard[r][c] = 0;
-                            }
+                            currentBoard[r][c] = num;
                         } else {
                             this.value = '';
                             currentBoard[r][c] = 0;
                         }
+                        checkConflicts();
+                        updateNumpad();
                     };
 
                     boardElement.appendChild(input);
+                }
+            }
+            createNumpad();
+            checkConflicts();
+            updateNumpad();
+        }
+
+        // 建立 1~9 數字按鈕區
+        function createNumpad() {
+            const numpad = document.getElementById('numpad');
+            numpad.innerHTML = '';
+            for (let i = 1; i <= 9; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'num-btn';
+                btn.id = `num-btn-${i}`;
+                btn.innerText = i;
+                btn.onclick = function() {
+                    if (selectedCell) {
+                        const { r, c } = selectedCell;
+                        if (initialBoard[r][c] === 0) {
+                            currentBoard[r][c] = i;
+                            document.getElementById(`cell-${r}-${c}`).value = i;
+                            checkConflicts();
+                            updateNumpad();
+                        }
+                    }
+                };
+                numpad.appendChild(btn);
+            }
+        }
+
+        // 選擇某個格子
+        function selectCell(r, c) {
+            document.querySelectorAll('.cell').forEach(el => el.classList.remove('selected'));
+            selectedCell = { r, c };
+            document.getElementById(`cell-${r}-${c}`).classList.add('selected');
+        }
+
+        // 功能 2：檢查並標紅所有重複衝突的號碼
+        function checkConflicts() {
+            // 清除之前的衝突狀態
+            document.querySelectorAll('.cell').forEach(el => el.classList.remove('conflict'));
+
+            // 檢查每一格
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    const num = currentBoard[r][c];
+                    if (num === 0) continue;
+
+                    let hasConflict = false;
+
+                    // 1. 檢查同列
+                    for (let j = 0; j < 9; j++) {
+                        if (j !== c && currentBoard[r][j] === num) {
+                            hasConflict = true;
+                            document.getElementById(`cell-${r}-${j}`).classList.add('conflict');
+                        }
+                    }
+                    // 2. 檢查同行
+                    for (let i = 0; i < 9; i++) {
+                        if (i !== r && currentBoard[i][c] === num) {
+                            hasConflict = true;
+                            document.getElementById(`cell-${i}-${c}`).classList.add('conflict');
+                        }
+                    }
+                    // 3. 檢查 3x3 九宮格
+                    let bx = Math.floor(c / 3) * 3, by = Math.floor(r / 3) * 3;
+                    for (let i = by; i < by + 3; i++) {
+                        for (let j = bx; j < bx + 3; j++) {
+                            if ((i !== r || j !== c) && currentBoard[i][j] === num) {
+                                hasConflict = true;
+                                document.getElementById(`cell-${i}-${j}`).classList.add('conflict');
+                            }
+                        }
+                    }
+
+                    if (hasConflict) {
+                        document.getElementById(`cell-${r}-${c}`).classList.add('conflict');
+                    }
+                }
+            }
+        }
+
+        // 功能 1：檢查每個數字出現次數，若滿 9 個（且無違規）則停用按鈕
+        function updateNumpad() {
+            for (let num = 1; num <= 9; num++) {
+                let count = 0;
+                let hasConflict = false;
+
+                for (let r = 0; r < 9; r++) {
+                    for (let c = 0; c < 9; c++) {
+                        if (currentBoard[r][c] === num) {
+                            count++;
+                            const cellEl = document.getElementById(`cell-${r}-${c}`);
+                            if (cellEl && cellEl.classList.contains('conflict')) {
+                                hasConflict = true;
+                            }
+                        }
+                    }
+                }
+
+                const btn = document.getElementById(`num-btn-${num}`);
+                if (btn) {
+                    // 滿 9 個且沒有衝突，按鈕變灰停用
+                    if (count >= 9 && !hasConflict) {
+                        btn.disabled = true;
+                    } else {
+                        btn.disabled = false;
+                    }
                 }
             }
         }
@@ -201,6 +339,7 @@
 
         function resetBoard() {
             currentBoard = JSON.parse(JSON.stringify(initialBoard));
+            selectedCell = null;
             renderBoard();
         }
 

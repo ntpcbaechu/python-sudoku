@@ -73,35 +73,50 @@
         }
         .btn-action:hover { background-color: #0056b3; } /* 滑鼠懸停變深藍 */
 
-        /* 4. 右側功能按鈕通用樣式（重來按鈕） */
+        /* 4. 右側功能按鈕通用樣式（重來按鈕 - 灰色） */
         .btn-secondary {
             background-color: #6c757d;
             color: white;
             border: none;
-            padding: 10px 6px;
+            padding: 8px 4px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
             width: 50px;
             box-sizing: border-box;
         }
         .btn-secondary:hover { background-color: #5a6268; }
 
-        /* 右側功能按鈕通用樣式（暫停按鈕） */
+        /* 右側功能按鈕通用樣式（暫停按鈕 - 黃色） */
         .btn-warning {
             background-color: #ffc107;
             color: #212529;
             border: none;
-            padding: 10px 6px;
+            padding: 8px 4px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
             width: 50px;
             box-sizing: border-box;
         }
         .btn-warning:hover { background-color: #e0a800; }
+
+        /* 右側功能按鈕通用樣式（放棄按鈕 - 紅色） */
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            width: 50px;
+            box-sizing: border-box;
+        }
+        .btn-danger:hover { background-color: #bd2130; }
 
         /* 5. 主遊戲區容器（預設隱藏，點擊開始遊戲後才顯示） */
         .game-container {
@@ -169,10 +184,10 @@
             color: #155724 !important;          /* 完成整行/列：深綠字體 */
         }
 
-        /* 10. 右側按鈕面板：分為左邊 1-9 直排，右邊暫停/重來按鈕 */
+        /* 10. 右側面板：1-9 數字鍵盤 + 右側功能按鈕 (暫停/重來/放棄) */
         .side-panel {
             display: flex;
-            flex-direction: row;             /* 橫向排列：1-9 按鈕在左，暫停/重來在右 */
+            flex-direction: row;             /* 橫向並排 */
             gap: 12px;
         }
 
@@ -207,7 +222,7 @@
             opacity: 0.5;
         }
 
-        /* 右側功能按鈕區（暫停與重來按鈕直排） */
+        /* 右側功能按鈕區（暫停、重來、放棄垂直排列） */
         .action-buttons {
             display: flex;
             flex-direction: column;
@@ -241,9 +256,11 @@
             <input type="text" id="playerName" class="player-input" placeholder="請輸入姓名">
         </label>
 
+        <!-- 難度選單：預設為「請選擇難度」強迫玩家選擇 -->
         <label for="difficulty">難度：</label>
-        <select id="difficulty" onchange="changeDifficulty()">
-            <option value="easy" selected>簡單 (Easy)</option>
+        <select id="difficulty">
+            <option value="" selected disabled>-- 請選擇難度 --</option>
+            <option value="easy">簡單 (Easy)</option>
             <option value="medium">中等 (Medium)</option>
             <option value="hard">困難 (Hard)</option>
             <option value="expert">超困難 (Expert)</option>
@@ -258,7 +275,7 @@
         <div class="timer-box">⏱️ 用時：<span id="timer">00:00</span></div>
     </div>
 
-    <!-- 遊戲主區塊（棋盤 + 右側 1-9 直排 + 右側暫停/重來按鈕） -->
+    <!-- 遊戲主區塊（棋盤 + 右側 1-9 直排 + 右側暫停/重來/放棄按鈕） -->
     <div class="game-container" id="gameContainer">
         <!-- 暫停時的半透明遮罩 -->
         <div class="pause-overlay" id="pauseOverlay">⏸️ 遊戲暫停中</div>
@@ -271,10 +288,11 @@
             <!-- 1~9 數字鍵盤 (直排) -->
             <div class="numpad" id="numpad"></div>
 
-            <!-- 功能按鈕區（移至數字按鈕右邊） -->
+            <!-- 功能按鈕區（暫停、重來、放棄） -->
             <div class="action-buttons">
                 <button class="btn-warning" id="pauseBtn" onclick="togglePause()">⏸️<br>暫停</button>
                 <button class="btn-secondary" onclick="resetBoard()">🔄<br>重來</button>
+                <button class="btn-danger" onclick="giveUp()">🏳️<br>放棄</button>
             </div>
         </div>
     </div>
@@ -310,47 +328,76 @@
         // ==========================================
         // 2. 全局變數定義
         // ==========================================
-        let currentDifficulty = 'easy';                           // 當前難度
-        let initialBoard = puzzles[currentDifficulty];            // 原始題目
-        let currentBoard = JSON.parse(JSON.stringify(initialBoard)); // 玩家當前盤面
+        let currentDifficulty = '';                               // 當前難度 (預設空白)
+        let initialBoard = null;                                  // 原始題目
+        let currentBoard = null;                                  // 玩家當前盤面
         let selectedCell = null;                                  // 選中的格子
         let timerInterval = null, secondsElapsed = 0;             // 計時器變數
         let gameFinished = false, isPaused = false, isGameStarted = false; // 遊戲狀態標記
 
         // ==========================================
-        // 3. 開始遊戲邏輯 (檢查姓名 -> 隱藏設定列 -> 顯示棋盤)
+        // 3. 開始遊戲邏輯 (強迫檢查姓名與難度)
         // ==========================================
         function startGame() {
             const nameInput = document.getElementById('playerName').value.trim();
+            const diffSelect = document.getElementById('difficulty').value;
+
+            // 驗證 1：檢查是否填寫姓名
             if (!nameInput) {
-                alert('請先輸入玩家姓名再開始遊戲！');
+                alert('請先輸入玩家姓名！');
                 document.getElementById('playerName').focus();
                 return;
             }
 
-            // 更新玩家資訊顯示
+            // 驗證 2：檢查是否選擇難度
+            if (!diffSelect) {
+                alert('請選擇遊戲難度！');
+                document.getElementById('difficulty').focus();
+                return;
+            }
+
+            // 更新玩家資訊與難度設定
+            currentDifficulty = diffSelect;
+            initialBoard = puzzles[currentDifficulty];
+            currentBoard = JSON.parse(JSON.stringify(initialBoard));
+
             document.getElementById('playerDisplay').innerText = nameInput;
             
-            // 🌟 點擊「▶ 開始遊戲」後，隱藏頂部設定欄位
+            // 隱藏頂部設定欄，顯示資訊列與棋盤
             document.getElementById('controlsBlock').style.display = 'none';
-
-            // 顯示玩家資訊列與棋盤
             document.getElementById('infoBar').style.display = 'flex';
             document.getElementById('gameContainer').style.display = 'flex';
 
-            // 初始化遊戲狀態
+            // 初始化狀態
             isGameStarted = true;
             isPaused = false;
             document.getElementById('pauseOverlay').style.display = 'none';
             document.getElementById('pauseBtn').innerHTML = '⏸️<br>暫停';
 
-            currentDifficulty = document.getElementById('difficulty').value;
-            initialBoard = puzzles[currentDifficulty];
             resetBoard();
         }
 
         // ==========================================
-        // 4. 計時器控制邏輯
+        // 4. 放棄遊戲邏輯 (回到主選單)
+        // ==========================================
+        function giveUp() {
+            if (confirm('確定要放棄這局遊戲嗎？')) {
+                stopTimer(); // 停止計時器
+                isGameStarted = false;
+                isPaused = false;
+
+                // 隱藏棋盤與資訊列，重新顯示頂部設定列
+                document.getElementById('gameContainer').style.display = 'none';
+                document.getElementById('infoBar').style.display = 'none';
+                document.getElementById('controlsBlock').style.display = 'flex';
+
+                // 重置難度下拉選單預設值
+                document.getElementById('difficulty').selectedIndex = 0;
+            }
+        }
+
+        // ==========================================
+        // 5. 計時器控制邏輯
         // ==========================================
         function startTimer() {
             stopTimer();
@@ -376,7 +423,7 @@
         }
 
         // ==========================================
-        // 5. 暫停與繼續邏輯
+        // 6. 暫停與繼續邏輯
         // ==========================================
         function togglePause() {
             if (!isGameStarted || gameFinished) return;
@@ -394,7 +441,7 @@
         }
 
         // ==========================================
-        // 6. 渲染棋盤畫面 (點擊預設數字可高亮)
+        // 7. 渲染棋盤畫面 (點擊預設數字可高亮)
         // ==========================================
         function renderBoard() {
             const boardElement = document.getElementById('board');
@@ -449,7 +496,7 @@
         }
 
         // ==========================================
-        // 7. 生成數字按鈕與同數字高亮邏輯
+        // 8. 生成數字按鈕與同數字高亮邏輯
         // ==========================================
         function createNumpad() {
             const numpad = document.getElementById('numpad');
@@ -500,7 +547,7 @@
         }
 
         // ==========================================
-        // 8. 規則判定（重複標紅 / 完成標綠 / 勝負判定）
+        // 9. 規則判定（重複標紅 / 完成標綠 / 勝負判定）
         // ==========================================
         function checkConflicts() {
             document.querySelectorAll('.cell').forEach(el => el.classList.remove('conflict'));
@@ -583,13 +630,6 @@
                     alert(`🎉 恭喜 ${playerName} 順利完成數獨！\n⏱️ 總共耗時：${timeStr}`);
                 }, 200);
             }
-        }
-
-        function changeDifficulty() {
-            if (!isGameStarted) return;
-            currentDifficulty = document.getElementById('difficulty').value;
-            initialBoard = puzzles[currentDifficulty];
-            resetBoard();
         }
 
         function resetBoard() {

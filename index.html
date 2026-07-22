@@ -438,10 +438,8 @@
 
             <!-- 功能按鈕區（復原、暫停、清除、放棄、排名） -->
             <div class="action-buttons">
-                <!-- 🌟 新增「復原」按鈕：回到上一步 -->
                 <button class="btn-info" onclick="undoMove()">↩️<br>復原</button>
                 <button class="btn-warning" id="pauseBtn" onclick="togglePause()">⏸️<br>暫停</button>
-                <!-- 🌟 改為「清除」按鈕：清除所有玩家填寫的數字，但時間繼續算 -->
                 <button class="btn-secondary" onclick="clearBoardKeepTimer()">🧹<br>清除</button>
                 <button class="btn-danger" onclick="giveUp()">🏳️<br>放棄</button>
                 <button class="btn-purple" onclick="openLeaderboard('game')">🏆<br>排名</button>
@@ -453,7 +451,8 @@
     <div class="modal-overlay" id="rankModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>🏆 英雄榜 (Top 10)</h2>
+                <!-- 🌟 標題改為 TOP 5 -->
+                <h2>🏆 英雄榜 (Top 5)</h2>
             </div>
             
             <!-- 四大難度並排列表 -->
@@ -523,7 +522,7 @@
         let currentDifficulty = '';                               // 當前難度
         let initialBoard = null;                                  // 原始題目備份
         let currentBoard = null;                                  // 玩家填寫中的動態盤面
-        let moveHistory = [];                                     // 🌟 紀錄玩家填數字紀錄的陣列 (歷史紀錄)
+        let moveHistory = [];                                     // 紀錄玩家填數字紀錄的陣列 (歷史紀錄)
         let selectedCell = null;                                  // 滑鼠點選的格子 {r, c}
         let timerInterval = null, secondsElapsed = 0;             // 計時器相關變數
         let gameFinished = false, isPaused = false, isGameStarted = false; // 遊戲狀態標記
@@ -580,6 +579,7 @@
             document.getElementById('rankModal').style.display = 'none';
         }
 
+        // 🌟 渲染排行榜表格 UI (改為顯示前 5 名)
         function renderLeaderboardUI() {
             const boardData = getLeaderboardData();
             const diffs = ['easy', 'medium', 'hard', 'expert'];
@@ -589,7 +589,7 @@
                 listEl.innerHTML = '';
                 const items = boardData[diff] || [];
 
-                for (let i = 0; i < 10; i++) {
+                for (let i = 0; i < 5; i++) { // 🌟 限制前 5 名
                     const li = document.createElement('li');
                     li.className = 'rank-item';
 
@@ -616,13 +616,14 @@
             });
         }
 
+        // 🌟 紀錄通關成績至排行榜 (僅保留短於此難度前 5 名)
         function recordScore(name, seconds, timeStr, diff) {
             const data = getLeaderboardData();
             if (!data[diff]) data[diff] = [];
 
             data[diff].push({ name, seconds, timeStr });
             data[diff].sort((a, b) => a.seconds - b.seconds);
-            data[diff] = data[diff].slice(0, 10);
+            data[diff] = data[diff].slice(0, 5); // 🌟 只保留前 5 名
 
             saveLeaderboardData(data);
         }
@@ -661,8 +662,8 @@
             document.getElementById('pauseOverlay').style.display = 'none';
             document.getElementById('pauseBtn').innerHTML = '⏸️<br>暫停';
 
-            startTimer(); // 啟動計時
-            resetBoardStateOnly(); // 初始化盤面，不重置時間
+            startTimer();
+            resetBoardStateOnly();
         }
 
         function returnToHome() {
@@ -683,36 +684,32 @@
             }
         }
 
-        // 🌟 新增：清除所有玩家填寫的數字，但時間繼續算
         function clearBoardKeepTimer() {
             if (!isGameStarted || gameFinished || isPaused) return;
             if (confirm('確定要清除所有已填寫的數字嗎？（計時將不會停止）')) {
                 currentBoard = JSON.parse(JSON.stringify(initialBoard));
-                moveHistory = []; // 清空操作歷史
+                moveHistory = [];
                 selectedCell = null;
                 renderBoard();
             }
         }
 
-        // 🌟 新增：復原功能 (Undo)
         function undoMove() {
             if (!isGameStarted || gameFinished || isPaused) return;
-            if (moveHistory.length === 0) return; // 沒有動作可復原
+            if (moveHistory.length === 0) return;
 
-            const lastMove = moveHistory.pop(); // 取出上一個步驟 {r, c, oldVal, newVal}
+            const lastMove = moveHistory.pop();
             currentBoard[lastMove.r][lastMove.c] = lastMove.oldVal;
 
-            // 更新畫面上該格子的文字
             const cellEl = document.getElementById(`cell-${lastMove.r}-${lastMove.c}`);
             if (cellEl) {
                 cellEl.value = lastMove.oldVal !== 0 ? lastMove.oldVal : '';
             }
 
-            selectCell(lastMove.r, lastMove.c); // 選中復原的那一格
+            selectCell(lastMove.r, lastMove.c);
             handleBoardChange();
         }
 
-        // 紀錄一次操作步驟
         function recordMove(r, c, oldVal, newVal) {
             if (oldVal !== newVal) {
                 moveHistory.push({ r, c, oldVal, newVal });
@@ -801,7 +798,7 @@
                         else this.value = '';
 
                         currentBoard[r][c] = newVal;
-                        recordMove(r, c, oldVal, newVal); // 紀錄步驟以利復原
+                        recordMove(r, c, oldVal, newVal);
                         handleBoardChange();
                     };
 
@@ -837,7 +834,7 @@
                         const oldVal = currentBoard[r][c];
                         currentBoard[r][c] = i;
                         document.getElementById(`cell-${r}-${c}`).value = i;
-                        recordMove(r, c, oldVal, i); // 紀錄步驟以利復原
+                        recordMove(r, c, oldVal, i);
                         handleBoardChange();
                     }
                 };
@@ -939,7 +936,6 @@
             }
         }
 
-        // 僅重置盤面狀態（不重置計時器）
         function resetBoardStateOnly() {
             currentBoard = JSON.parse(JSON.stringify(initialBoard));
             moveHistory = [];

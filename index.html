@@ -245,15 +245,16 @@
             align-self: stretch;             /* 讓面板高度伸展與棋盤等高 */
         }
 
-        /* 1-9 數字按鈕區（單直欄排列） */
+        /* 🌟 1-9 數字按鈕區：設定與棋盤等高，並使用 space-between 平均分散 1~9 按鈕 */
         .numpad {
             display: flex;
             flex-direction: column;          /* 直排 */
-            gap: 6px;
+            justify-content: space-between;  /* 關鍵：1 到 9 號在垂直方向上等距平均分散 */
+            height: 100%;                    /* 填滿整體高度 */
         }
         .num-btn {
             width: 45px;
-            height: 38px;
+            height: 40px;                    /* 微調高度，視覺更飽滿對齊 */
             font-size: 18px;
             font-weight: bold;
             border: 2px solid #007bff;
@@ -276,19 +277,19 @@
             opacity: 0.5;
         }
 
-        /* 🌟 右側功能按鈕區：使用 space-between 實現「頂部暫停 / 中間三個按鈕 / 置底排名」 */
+        /* 右側功能按鈕區：頂部暫停、中間三鍵、置底排名 */
         .action-buttons {
             display: flex;
             flex-direction: column;
-            justify-content: space-between;  /* 精髓：將頂、中、底按鈕自動均勻推開 */
-            height: 100%;                    /* 填滿整體高度與棋盤等高 */
+            justify-content: space-between;  /* 均勻分散 */
+            height: 100%;                    /* 填滿高度 */
         }
 
         /* 中間三個按鈕（復原、清除、放棄）組合容器 */
         .middle-buttons {
             display: flex;
             flex-direction: column;
-            gap: 6px;                        /* 中間三個按鈕維持精緻間距 */
+            gap: 8px;                        /* 中間三個按鈕維持精緻間距 */
         }
 
         /* 11. 暫停時覆蓋棋盤的半透明遮罩 */
@@ -442,10 +443,10 @@
 
         <!-- 右側按鈕面板 -->
         <div class="side-panel">
-            <!-- 1~9 數字按鈕區 -->
+            <!-- 1~9 數字按鈕區 (高度拉滿 + 等距分散) -->
             <div class="numpad" id="numpad"></div>
 
-            <!-- 功能按鈕區：完美分為 頂部暫停、中間三鍵、置底排名 -->
+            <!-- 功能按鈕區：頂部暫停、中間三鍵、置底排名 -->
             <div class="action-buttons">
                 <!-- 1. 最頂部：暫停 -->
                 <button class="btn-warning" id="pauseBtn" onclick="togglePause()">⏸️<br>暫停</button>

@@ -3,17 +3,19 @@
 <head>
     <!-- 設定網頁編碼為 UTF-8 -->
     <meta charset="UTF-8">
-    <!-- 設定響應式網頁 RWD，完美適配手機與電腦螢幕 -->
+    <!-- 設定響應式網頁 RWD，完美適配手機與電腦螢幕，禁止不必要的縮放 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>網頁版數獨小遊戲 5.0 (手機優化版)</title>
+    <title>網頁版數獨小遊戲 5.1 (修復復原與行行註解版)</title>
     
-    <!-- CSS 樣式區塊 -->
+    <!-- CSS 樣式區塊：定義全域與組件外觀 -->
     <style>
-        /* 1. 全局背景與字型設定 */
+        /* 1. 設定所有元素的盒子模型與觸控優化 */
         * {
             box-sizing: border-box;
-            touch-action: manipulation; /* 優化手機點擊反應 */
+            touch-action: manipulation;
         }
+
+        /* 2. 全局頁面與背景樣式 */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
             display: flex;
@@ -25,6 +27,7 @@
             min-height: 100vh;
         }
 
+        /* 3. 頂部標題樣式 */
         h1 { 
             color: #333; 
             margin-top: 5px; 
@@ -32,7 +35,7 @@
             font-size: 24px;
         }
 
-        /* 2. 🏠 首頁卡片控制面板 (垂直卡片佈局) */
+        /* 4. 首頁設定卡片面板 (垂直卡片佈局) */
         .controls {
             display: flex;
             flex-direction: column;
@@ -45,6 +48,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
+        /* 5. 輸入框與下拉選單的群組包裝 */
         .form-group {
             display: flex;
             flex-direction: column;
@@ -55,15 +59,17 @@
             font-size: 14px;
         }
 
+        /* 6. 輸入欄位本體樣式 (防止 iOS 縮放) */
         input[type="text"].player-input, select {
             width: 100%;
             padding: 10px 12px;
-            font-size: 16px; /* 防止 iOS 自動拉近畫面 */
+            font-size: 16px;
             border-radius: 6px;
             border: 1px solid #ccc;
             outline: none;
         }
 
+        /* 7. 主按鈕樣式 (開始遊戲) */
         .btn-main-action {
             width: 100%;
             padding: 12px;
@@ -78,6 +84,7 @@
         }
         .btn-main-action:hover { background-color: #0056b3; }
 
+        /* 8. 英雄榜按鈕樣式 */
         .btn-rank-home {
             width: 100%;
             padding: 12px;
@@ -90,7 +97,7 @@
             cursor: pointer;
         }
 
-        /* 3. 玩家資訊與計時器顯示欄 */
+        /* 9. 遊戲中頂部資訊欄 (玩家姓名與計時器) */
         .info-bar {
             display: flex;
             justify-content: space-between;
@@ -104,9 +111,9 @@
         }
         .timer-box { color: #d9534f; }
 
-        /* 4. 🎮 主遊戲區容器 */
+        /* 10. 遊戲主容器區塊 */
         .game-container {
-            display: none; /* 預設隱藏 */
+            display: none;
             flex-direction: column;
             align-items: center;
             gap: 12px;
@@ -119,21 +126,21 @@
             max-width: 430px;
         }
 
-        /* 5. 數獨棋盤網格：自動按螢幕縮放 */
+        /* 11. 81格數獨棋盤網格設定 */
         .grid {
             display: grid;
             grid-template-columns: repeat(9, 1fr);
             grid-template-rows: repeat(9, 1fr);
             width: 100%;
             max-width: 400px;
-            aspect-ratio: 1 / 1; /* 保持正方形 */
+            aspect-ratio: 1 / 1;
             background-color: #ccc;
             border: 3px solid #000;
             gap: 1px;
             box-sizing: border-box;
         }
 
-        /* 6. 每個單一格子 (純 div 防止手機鍵盤跳出) */
+        /* 12. 單一棋盤格子樣式 (純 div 封印手機鍵盤) */
         .cell {
             display: flex;
             justify-content: center;
@@ -147,27 +154,17 @@
             -webkit-user-select: none;
         }
 
-        /* 九宮格黑粗線劃分 */
+        /* 13. 九宮格粗邊框定義 */
         .border-right-thick { border-right: 2.5px solid #000 !important; }
         .border-bottom-thick { border-bottom: 2.5px solid #000 !important; }
 
-        /* 格子狀態樣式 */
-        .given { 
-            background-color: #f8f9fa; 
-            color: #333 !important; 
-        }
-        .selected {
-            background-color: #bbdefb !important; /* 選中的亮藍色 */
-        }
-        .same-number {
-            background-color: #fff9c4 !important; /* 全盤相同數字淡黃色 */
-        }
-        .conflict { 
-            background-color: #ffcccc !important; 
-            color: #dc3545 !important; 
-        }
+        /* 14. 棋盤格子狀態變化類別 */
+        .given { background-color: #f8f9fa; color: #333 !important; }
+        .selected { background-color: #bbdefb !important; }
+        .same-number { background-color: #fff9c4 !important; }
+        .conflict { background-color: #ffcccc !important; color: #dc3545 !important; }
 
-        /* 7. 📱 1-9 數字鍵盤 (橫排一字排開) */
+        /* 15. 1-9 數字鍵盤橫排佈局 */
         .numpad {
             display: flex;
             justify-content: space-between;
@@ -196,7 +193,7 @@
             opacity: 0.5;
         }
 
-        /* 8. 🛠️ 功能按鈕區 (雙行佈局) */
+        /* 16. 功能按鈕區 (雙行排版) */
         .action-buttons-mobile {
             display: flex;
             flex-direction: column;
@@ -228,7 +225,7 @@
         .btn-danger { background-color: #dc3545; }
         .btn-purple { background-color: #6f42c1; }
 
-        /* 9. 暫停遮罩層 */
+        /* 17. 暫停畫面遮罩層 */
         .pause-overlay {
             display: none;
             position: absolute;
@@ -243,7 +240,7 @@
             color: #333;
         }
 
-        /* 10. 🏆 排行榜彈窗 (手機適配 RWD 滾動版) */
+        /* 18. 排行榜彈窗外層遮罩 */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -255,6 +252,7 @@
             padding: 15px;
         }
 
+        /* 19. 排行榜彈窗內容容器 */
         .modal-content {
             background: white;
             padding: 20px 16px;
@@ -269,7 +267,7 @@
 
         .modal-header h2 { margin: 0; font-size: 19px; color: #333; text-align: center; }
 
-        /* 📱 排行榜難度切換頁籤 (Tab) */
+        /* 20. 排行榜難度切換分頁 Tab */
         .tab-container {
             display: flex;
             gap: 4px;
@@ -296,7 +294,7 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        /* 📱 排行榜內容列表 (可垂直滾動) */
+        /* 21. 排行榜可滾動列表區域 */
         .leaderboard-scroll-area {
             overflow-y: auto;
             max-height: 240px;
@@ -321,7 +319,7 @@
         .rank-name { text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 130px; font-weight: 500; }
         .rank-time { color: #d9534f; font-weight: bold; }
 
-        /* 🌟 重構：彈窗底部圓角膠囊按鈕區 */
+        /* 22. 彈窗底部美化膠囊按鈕區 */
         .modal-footer {
             display: flex;
             gap: 10px;
@@ -337,7 +335,7 @@
             font-size: 14px;
             font-weight: bold;
             border: none;
-            border-radius: 20px; /* 圓角膠囊形狀 */
+            border-radius: 20px;
             cursor: pointer;
             transition: all 0.2s ease;
             box-shadow: 0 2px 6px rgba(0,0,0,0.1);
@@ -346,35 +344,26 @@
             align-items: center;
             gap: 4px;
         }
-        .modal-footer .btn-home {
-            background-color: #007bff;
-            color: white;
-        }
-        .modal-footer .btn-continue {
-            background-color: #28a745;
-            color: white;
-        }
-        .modal-footer .btn-giveup {
-            background-color: #dc3545;
-            color: white;
-        }
-        .modal-footer button:active {
-            transform: scale(0.96);
-        }
+        .modal-footer .btn-home { background-color: #007bff; color: white; }
+        .modal-footer .btn-continue { background-color: #28a745; color: white; }
+        .modal-footer .btn-giveup { background-color: #dc3545; color: white; }
+        .modal-footer button:active { transform: scale(0.96); }
     </style>
 </head>
 <body>
 
-    <!-- 標題 -->
+    <!-- 網頁全域大標題 -->
     <h1>🧩 網頁線上數獨</h1>
     
-    <!-- 🏠 1. 首頁設定卡片 -->
+    <!-- 🏠 首頁設定控制面板 -->
     <div class="controls" id="controlsBlock">
+        <!-- 玩家姓名輸入群組 -->
         <div class="form-group">
             <label>👤 玩家姓名：</label>
             <input type="text" id="playerName" class="player-input" placeholder="請輸入姓名">
         </div>
 
+        <!-- 遊戲難度選擇群組 -->
         <div class="form-group">
             <label>🎯 選擇難度：</label>
             <select id="difficulty">
@@ -386,28 +375,29 @@
             </select>
         </div>
 
+        <!-- 開始遊戲與英雄榜按鈕 -->
         <button class="btn-main-action" id="startBtn" onclick="startGame()">▶ 開始遊戲</button>
         <button class="btn-rank-home" onclick="openLeaderboard('home')">🏆 英雄榜</button>
     </div>
 
-    <!-- 2. 玩家資訊與計時器 -->
+    <!-- 遊戲中頂部玩家與計時狀態列 (預設隱藏) -->
     <div class="info-bar" id="infoBar" style="display: none;">
         <div>👤 玩家：<span id="playerDisplay">匿名玩家</span></div>
         <div class="timer-box">⏱️ 用時：<span id="timer">00:00</span></div>
     </div>
 
-    <!-- 🎮 3. 遊戲主區塊 (棋盤 + 橫排按鈕 + 雙行功能鍵) -->
+    <!-- 🎮 遊戲主介面容器 (棋盤與按鈕) -->
     <div class="game-container" id="gameContainer">
-        <!-- 暫停遮罩 -->
+        <!-- 遊戲暫停遮罩 -->
         <div class="pause-overlay" id="pauseOverlay">⏸️ 遊戲暫停中</div>
 
-        <!-- 81 格數獨棋盤 -->
+        <!-- 81格數獨棋盤渲染目標 -->
         <div id="board" class="grid"></div>
 
-        <!-- 1~9 數字鍵盤 (橫排一字排開) -->
+        <!-- 1~9 數字鍵盤橫排 -->
         <div class="numpad" id="numpad"></div>
 
-        <!-- 功能按鈕區 (雙行精緻佈局) -->
+        <!-- 功能按鈕雙行區塊 -->
         <div class="action-buttons-mobile">
             <!-- 第 1 行：暫停與排名 -->
             <div class="btn-row">
@@ -423,14 +413,14 @@
         </div>
     </div>
 
-    <!-- 🏆 4. 排行榜彈窗 (RWD 膠囊按鈕美化版) -->
+    <!-- 🏆 英雄榜彈窗視窗 -->
     <div class="modal-overlay" id="rankModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>🏆 英雄榜 (Top 5 - 全球連線)</h2>
             </div>
             
-            <!-- 難度切換頁籤 -->
+            <!-- 排行榜難度切換 Tab -->
             <div class="tab-container">
                 <button class="tab-btn active" id="tab-easy" onclick="switchRankTab('easy')">簡單</button>
                 <button class="tab-btn" id="tab-medium" onclick="switchRankTab('medium')">中等</button>
@@ -438,12 +428,12 @@
                 <button class="tab-btn" id="tab-expert" onclick="switchRankTab('expert')">超難</button>
             </div>
 
-            <!-- 可滑動列表 -->
+            <!-- 榜單滾動區域 -->
             <div class="leaderboard-scroll-area">
                 <ul class="rank-list" id="activeRankList"></ul>
             </div>
 
-            <!-- 🌟 美化後的膠囊按鈕區 -->
+            <!-- 彈窗底部膠囊按鈕區 -->
             <div class="modal-footer">
                 <button class="btn-home" id="btnRankHome" onclick="closeLeaderboard()">🏠 返回首頁</button>
                 <button class="btn-continue" id="btnRankContinue" onclick="continueGameFromRank()">▶ 繼續遊戲</button>
@@ -452,11 +442,12 @@
         </div>
     </div>
 
-    <!-- Firebase 雲端資料庫 SDK -->
+    <!-- Firebase 雲端資料庫模組與即時排行榜監聽 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
+        /* Firebase 專案設定連線憑證 */
         const firebaseConfig = {
             apiKey: "AIzaSyALmDAZBk6rQON7Ifqd23vHD-niSAG4Fh4",
             authDomain: "python-sudoku.firebaseapp.com",
@@ -467,12 +458,15 @@
             appId: "1:26285195175:web:1b64eb9a22908cbf1c0082"
         };
 
+        /* 初始化 Firebase 應用與資料庫實例 */
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        /* 全域排行榜資料結構與預設當前 Tab */
         let globalLeaderboardData = { easy: [], medium: [], hard: [], expert: [] };
         window.currentRankTab = 'easy';
 
+        /* 監聽雲端資料庫中 leaderboard 的即時變動 */
         const leaderboardRef = ref(db, 'leaderboard');
         onValue(leaderboardRef, (snapshot) => {
             const data = snapshot.val();
@@ -482,8 +476,8 @@
                 Object.keys(data).forEach(diff => {
                     if (data[diff]) {
                         const list = Object.values(data[diff]);
-                        list.sort((a, b) => a.seconds - b.seconds);
-                        parsedData[diff] = list.slice(0, 5);
+                        list.sort((a, b) => a.seconds - b.seconds); // 依花費時間由快到慢排序
+                        parsedData[diff] = list.slice(0, 5);       // 只取前 5 名
                     }
                 });
             }
@@ -491,11 +485,13 @@
             if (window.renderLeaderboardUI) window.renderLeaderboardUI();
         });
 
+        /* 上傳玩家通關成績至 Firebase 雲端 */
         window.recordScoreToCloud = function(name, seconds, timeStr, diff) {
             const diffRef = ref(db, `leaderboard/${diff}`);
             push(diffRef, { name, seconds, timeStr, timestamp: Date.now() });
         };
 
+        /* 渲染英雄榜介面 DOM 元素 */
         window.renderLeaderboardUI = function() {
             const listEl = document.getElementById('activeRankList');
             if (!listEl) return;
@@ -530,8 +526,9 @@
         };
     </script>
 
-    <!-- 遊戲主邏輯 -->
+    <!-- 遊戲核心 JavaScript 邏輯控制 -->
     <script>
+        /* 預設的 4 種難度數獨初始題目盤面 (0 代表空格) */
         const puzzles = {
             easy: [
                 [0, 0, 0, 2, 6, 0, 7, 0, 1], [6, 8, 0, 0, 7, 0, 0, 9, 0], [1, 9, 0, 0, 0, 4, 5, 0, 0],
@@ -555,15 +552,17 @@
             ]
         };
 
+        /* 遊戲狀態全域變數宣告 */
         let currentDifficulty = '';
-        let lastPlayedDifficulty = 'easy'; // 🌟 紀錄剛玩過/正在玩的難度
-        let initialBoard = null;
-        let currentBoard = null;
-        let moveHistory = [];
-        let selectedCell = null;
-        let timerInterval = null, secondsElapsed = 0;
+        let lastPlayedDifficulty = 'easy'; // 記憶最後遊玩的難度
+        let initialBoard = null;           // 初始題目盤面
+        let currentBoard = null;           // 當前遊玩盤面
+        let moveHistory = [];              // 玩家下棋歷史紀錄 (用於復原)
+        let selectedCell = null;           // 當前選中的格子座標 {r, c}
+        let timerInterval = null, secondsElapsed = 0; // 計時器變數
         let gameFinished = false, isPaused = false, isGameStarted = false;
 
+        /* 切換排行榜彈窗內的難度分頁 Tab */
         function switchRankTab(diff) {
             window.currentRankTab = diff;
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -572,9 +571,9 @@
             if (window.renderLeaderboardUI) window.renderLeaderboardUI();
         }
 
+        /* 開啟英雄榜彈窗 */
         function openLeaderboard(source = 'home') {
-            // 🌟 精準切換至當前或剛剛挑戰的難度頁籤
-            switchRankTab(lastPlayedDifficulty || 'easy');
+            switchRankTab(lastPlayedDifficulty || 'easy'); // 自動對齊當前難度
 
             const btnHome = document.getElementById('btnRankHome');
             const btnContinue = document.getElementById('btnRankContinue');
@@ -594,20 +593,24 @@
             document.getElementById('rankModal').style.display = 'flex';
         }
 
+        /* 從排行榜返回遊戲 */
         function continueGameFromRank() {
             closeLeaderboard();
             if (isPaused) togglePause();
         }
 
+        /* 從排行榜放棄遊戲 */
         function giveUpFromRank() {
             closeLeaderboard();
             giveUp();
         }
 
+        /* 關閉排行榜彈窗 */
         function closeLeaderboard() {
             document.getElementById('rankModal').style.display = 'none';
         }
 
+        /* 開始新遊戲 */
         function startGame() {
             const nameInput = document.getElementById('playerName').value.trim();
             const diffSelect = document.getElementById('difficulty').value;
@@ -625,7 +628,7 @@
             }
 
             currentDifficulty = diffSelect;
-            lastPlayedDifficulty = diffSelect; // 🌟 記憶挑戰難度
+            lastPlayedDifficulty = diffSelect;
             initialBoard = puzzles[currentDifficulty];
             currentBoard = JSON.parse(JSON.stringify(initialBoard));
 
@@ -643,6 +646,7 @@
             resetBoardStateOnly();
         }
 
+        /* 返回首頁 */
         function returnToHome() {
             stopTimer();
             isGameStarted = false;
@@ -654,10 +658,12 @@
             document.getElementById('difficulty').selectedIndex = 0;
         }
 
+        /* 放棄遊戲確認 */
         function giveUp() {
             if (confirm('確定要放棄這局遊戲嗎？')) returnToHome();
         }
 
+        /* 清除盤面但保留計時器 */
         function clearBoardKeepTimer() {
             if (!isGameStarted || gameFinished || isPaused) return;
             if (confirm('確定要清除所有已填寫的數字嗎？（計時不中斷）')) {
@@ -668,20 +674,33 @@
             }
         }
 
+        /* 🌟 真正的完美復原功能 (Undo Move) */
         function undoMove() {
             if (!isGameStarted || gameFinished || isPaused || moveHistory.length === 0) return;
 
+            /* 取出最後一步操作紀錄 */
             const lastMove = moveHistory.pop();
+            
+            /* 將內部矩陣資料還原為舊數值 (0 或之前的數字) */
             currentBoard[lastMove.r][lastMove.c] = lastMove.oldVal;
 
+            /* 🌟 關鍵修正：同步強制定向清空或更新畫面上該格子的文字！ */
+            const cellEl = document.getElementById(`cell-${lastMove.r}-${lastMove.c}`);
+            if (cellEl) {
+                cellEl.innerText = lastMove.oldVal === 0 ? '' : lastMove.oldVal;
+            }
+
+            /* 重新選中該格子，並觸發全盤衝突檢查與按鈕狀態更新 */
             selectCell(lastMove.r, lastMove.c);
             handleBoardChange();
         }
 
+        /* 紀錄玩家的每一步下棋動作 */
         function recordMove(r, c, oldVal, newVal) {
             if (oldVal !== newVal) moveHistory.push({ r, c, oldVal, newVal });
         }
 
+        /* 啟動計時器 */
         function startTimer() {
             stopTimer();
             secondsElapsed = 0;
@@ -695,16 +714,19 @@
             }, 1000);
         }
 
+        /* 停止計時器 */
         function stopTimer() {
             if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
         }
 
+        /* 更新計時器畫面的顯示格式 (mm:ss) */
         function updateTimerDisplay() {
             const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
             const secs = (secondsElapsed % 60).toString().padStart(2, '0');
             document.getElementById('timer').innerText = `${mins}:${secs}`;
         }
 
+        /* 切換遊戲暫停狀態 */
         function togglePause() {
             if (!isGameStarted || gameFinished) return;
             isPaused = !isPaused;
@@ -720,6 +742,7 @@
             }
         }
 
+        /* 渲染數獨棋盤 DOM 結構 */
         function renderBoard() {
             const boardElement = document.getElementById('board');
             boardElement.innerHTML = '';
@@ -730,13 +753,14 @@
                     cell.className = 'cell';
                     cell.id = `cell-${r}-${c}`;
 
+                    /* 九宮格粗邊線標記 */
                     if (c === 2 || c === 5) cell.classList.add('border-right-thick');
                     if (r === 2 || r === 5) cell.classList.add('border-bottom-thick');
 
                     const val = currentBoard[r][c];
                     if (initialBoard[r][c] !== 0) {
                         cell.innerText = val;
-                        cell.classList.add('given');
+                        cell.classList.add('given'); // 題目給定數字不可修改
                     } else if (val !== 0) {
                         cell.innerText = val;
                     }
@@ -749,6 +773,7 @@
             handleBoardChange();
         }
 
+        /* 棋盤變動時的全盤處理常式 */
         function handleBoardChange() {
             const hasConflict = checkConflicts();
             updateNumpad();
@@ -756,6 +781,7 @@
             checkWinCondition(hasConflict);
         }
 
+        /* 建立 1~9 數字鍵盤 DOM */
         function createNumpad() {
             const numpad = document.getElementById('numpad');
             numpad.innerHTML = '';
@@ -779,6 +805,7 @@
             }
         }
 
+        /* 點擊選擇指定格子 */
         function selectCell(r, c) {
             if (isPaused) return;
             document.querySelectorAll('.cell').forEach(el => {
@@ -793,6 +820,7 @@
             if (selectedNum !== 0) highlightSameNumbers(selectedNum);
         }
 
+        /* 高亮顯示盤面上相同的數字 */
         function highlightSameNumbers(num) {
             document.querySelectorAll('.cell').forEach(el => el.classList.remove('same-number'));
             if (!num || num === 0) return;
@@ -806,6 +834,7 @@
             }
         }
 
+        /* 檢查數獨規則衝突 (同行、同列、同九宮格重複數字) */
         function checkConflicts() {
             document.querySelectorAll('.cell').forEach(el => el.classList.remove('conflict'));
             let anyConflict = false;
@@ -831,6 +860,7 @@
             return anyConflict;
         }
 
+        /* 更新 1-9 數字按鈕鎖定狀態 (填滿 9 個且無衝突時自動 disable) */
         function updateNumpad() {
             for (let num = 1; num <= 9; num++) {
                 let count = 0, hasConflict = false;
@@ -847,6 +877,7 @@
             }
         }
 
+        /* 檢查是否達成勝利條件 (全盤填滿且無衝突) */
         function checkWinCondition(hasConflict) {
             if (hasConflict) return;
             let isFull = true;
@@ -872,6 +903,7 @@
             }
         }
 
+        /* 重置棋盤內部狀態 */
         function resetBoardStateOnly() {
             currentBoard = JSON.parse(JSON.stringify(initialBoard));
             moveHistory = [];

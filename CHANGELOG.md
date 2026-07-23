@@ -11,7 +11,7 @@
 
 這個 `-m` 後面的文字稱為 **Commit Message（版本提交備註）**[cite: 1]。
 - **程式碼註解**：解釋「這行 Code 在做什麼」[cite: 1]。
-- **Commit Message**：上記「這一版跟上一版相比改了什麼」[cite: 1]。
+- **Commit Message**：上記 "這一版跟上一版相比改了什麼"[cite: 1]。
 
 它是專案成長日記的標題，能讓開發者清晰追蹤每個版本的修改紀錄[cite: 1]。
 
@@ -65,20 +65,21 @@
 
 ---
 
-### 🗓️ 2026-07-23 (RWD 手機適配、智慧復原與無限隨機題庫)
+### 🗓️ 2026-07-23 (RWD 手機適配、智慧復原、無限隨機題庫與一鍵手動切換)
 
-#### 📱🌐 V5.0.0 至 V6.0.0 - 行動體驗與核心演算法重大升級
+#### 📱🌐 V5.0.0 至 V7.0.0 - 行動體驗、題庫生成與版面自由切換重大升級
 - **Commit Message 歷史**：
-  - `Fix modal tabs logic to remember played difficulty and restyle modal buttons into rounded pills`
-  - `Fix undo logic to fully clear cell values and add comprehensive line-by-line comments`
-  - `Implement randomized board permutations and fix desktop/mobile RWD dual layout`
-- **問題痛點**：行動裝置上點擊復原無法清空格子、通關後排行榜無法對齊剛剛玩的難度、切換裝置時無法完美自適應排版，且舊版固定題庫容易玩膩。
+  - `Fix modal tabs logic to remember played difficulty and restyle modal buttons into rounded pills`[cite: 1]
+  - `Fix undo logic to fully clear cell values and add comprehensive line-by-line comments`[cite: 1]
+  - `Implement randomized board permutations and fix desktop/mobile RWD dual layout`[cite: 1]
+  - `Add manual view mode toggle button and restore horizontal numpad layout for desktop`
+- **問題痛點**：舊版寬螢幕會把 1-9 數字鍵變成方塊矩陣讓人不習慣，且受限於自動偵測寬度切換版面會比較死板。
 - **修改亮點**：
-  1. **難度記憶連動**：通關或打開英雄榜時，會自動切換並對齊玩家剛剛挑戰的難度頁籤。
-  2. **彈窗按鈕美化**：將按鈕改為現代感十足的圓角膠囊造型。
-  3. **完美復原功能 (Undo)**：修復復原邏輯，不僅清除紅字衝突，更能精準將格子數字回溯清空並更新 1-9 按鈕狀態。
-  4. **無限隨機母題變形**：導入智慧數字映射與鏡射翻轉演算法，每次點擊開始遊戲都能動態生成全新排列組合的數獨局。
-  5. **RWD 雙欄動態響應**：手機上維持直向滿版單欄（不跳虛擬鍵盤），當螢幕寬度達電腦大螢幕（$\ge 768px$）時自動切換為舒適的左右並排雙欄寬螢幕配置。
+  1. **難度記憶連動**：通關或打開英雄榜時，會自動切換並對齊玩家剛剛挑戰的難度頁籤[cite: 1]。
+  2. **彈窗按鈕美化**：將按鈕改為現代感十足的圓角膠囊造型[cite: 1]。
+  3. **完美復原功能 (Undo)**：修復復原邏輯，不僅清除紅字衝突，更能精準將格子數字回溯清空並更新 1-9 按鈕狀態[cite: 1]。
+  4. **無限隨機母題變形**：導入智慧數字映射與鏡射翻轉演算法，每次點擊開始遊戲都能動態生成全新排列組合的數獨局[cite: 1]。
+  5. **右上角一鍵手動切換版面**：新增「自動適配 / 強制電腦版 / 強制手機版」懸浮切換按鈕，讓電腦版數字鍵恢復舒適漂亮的橫向一整排佈局，版面想怎麼切就怎麼切！
 
 ---
 

@@ -1,398 +1,329 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <!-- 設定網頁編碼為 UTF-8，確保中文顯示正常不變亂碼 -->
+    <!-- 設定網頁編碼為 UTF-8 -->
     <meta charset="UTF-8">
-    <!-- 設定響應式網頁，讓手機、平板與電腦縮放皆正常 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>網頁版數獨小遊戲 3.0 (雲端連線版)</title>
+    <!-- 設定響應式網頁 RWD，完美適配手機與電腦螢幕 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>網頁版數獨小遊戲 3.0 (雲端連線 RWD 版)</title>
     
-    <!-- CSS 樣式區塊：控制網頁整體與元件的外觀排版 -->
+    <!-- CSS 樣式區塊 -->
     <style>
         /* 1. 全局背景與字型設定 */
+        * {
+            box-sizing: border-box;
+            touch-action: manipulation; /* 優化手機點擊反應 */
+        }
         body {
-            font-family: Arial, sans-serif; /* 使用清晰無襯線字體 */
-            display: flex;                   /* 使用 Flex 佈局讓元件垂直置中 */
-            flex-direction: column;          /* 元件由上至下垂直排列 */
-            align-items: center;             /* 水平方向置中對齊 */
-            background-color: #f0f2f5;      /* 柔和的淡灰色背景 */
-            padding-top: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f2f5;
+            padding: 15px 10px;
             margin: 0;
+            min-height: 100vh;
         }
 
-        /* 主標題樣式 */
         h1 { 
             color: #333; 
-            margin-top: 0; 
+            margin-top: 5px; 
             margin-bottom: 15px; 
+            font-size: 24px;
         }
 
-        /* 2. 頂部控制面板（包含姓名輸入、難度選單、開始按鈕、排名按鈕） */
+        /* 2. 🏠 首頁卡片控制面板 (垂直卡片佈局) */
         .controls {
-            margin-bottom: 15px;
             display: flex;
-            flex-wrap: wrap;                 /* 畫面太窄時自動換行 */
-            gap: 12px;                       /* 各控制元件之間的間距 */
-            align-items: center;
-            justify-content: center;
-            background: #fff;                /* 白色卡片背景 */
-            padding: 12px 24px;
-            border-radius: 8px;              /* 圓角邊框 */
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1); /* 淡淡陰影增強質感 */
-        }
-
-        /* 3. 玩家姓名與計時器顯示欄 */
-        .info-bar {
-            display: flex;
-            gap: 20px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #444;
-            margin-bottom: 15px;
-        }
-        /* 計時器數字顏色（紅色） */
-        .timer-box { color: #d9534f; }
-
-        /* 輸入框、下拉選單、主要按鈕的通用樣式 */
-        input[type="text"].player-input, select, .btn-action {
-            padding: 6px 12px;
-            font-size: 15px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        /* 玩家姓名輸入框寬度 */
-        input[type="text"].player-input { width: 120px; }
-
-        /* 「▶ 開始遊戲」藍色主按鈕樣式 */
-        .btn-action {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .btn-action:hover { background-color: #0056b3; } /* 滑鼠懸停變深藍 */
-
-        /* 「🏆 排名」紫色按鈕通用樣式 (頂部主選單) */
-        .btn-rank {
-            background-color: #6f42c1;
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            font-size: 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .btn-rank:hover { background-color: #59359a; }
-
-        /* 4. 右側功能按鈕通用樣式（清除按鈕 - 灰色） */
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        .btn-secondary:hover { background-color: #5a6268; }
-
-        /* 側邊欄專用尺寸的小按鈕 */
-        .side-panel .btn-secondary,
-        .side-panel .btn-warning,
-        .side-panel .btn-danger,
-        .side-panel .btn-purple,
-        .side-panel .btn-info {
-            width: 50px;
-            padding: 6px 2px;
-            font-size: 12px;
-            box-sizing: border-box;
-        }
-
-        /* 功能按鈕通用樣式（復原按鈕 - 水藍色） */
-        .btn-info {
-            background-color: #17a2b8;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        .btn-info:hover { background-color: #138496; }
-
-        /* 功能按鈕通用樣式（暫停 / 繼續按鈕 - 黃色/綠色） */
-        .btn-warning {
-            background-color: #ffc107;
-            color: #212529;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        .btn-warning:hover { background-color: #e0a800; }
-
-        .btn-success {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        .btn-success:hover { background-color: #218838; }
-
-        /* 功能按鈕通用樣式（放棄按鈕 - 紅色） */
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        .btn-danger:hover { background-color: #bd2130; }
-
-        /* 右下角排名按鈕 */
-        .btn-purple {
-            background-color: #6f42c1;
-            color: white;
-            border: none;
-            padding: 8px 4px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 13px;
-        }
-        .btn-purple:hover { background-color: #59359a; }
-
-        /* 5. 主遊戲區容器（預設隱藏，點擊開始遊戲後才顯示） */
-        .game-container {
-            display: none;                   /* 預設隱藏 */
-            flex-direction: row;             /* 棋盤與右側按鈕區橫向並排 */
-            align-items: flex-start;
-            gap: 20px;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 380px;
             background: #fff;
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            position: relative;
         }
 
-        /* 6. 數獨棋盤網格樣式：使用獨立 Gap 形成清晰灰色細邊框 */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            text-align: left;
+            font-weight: bold;
+            color: #444;
+            font-size: 14px;
+        }
+
+        input[type="text"].player-input, select {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 16px; /* 防止 iOS 自動拉近畫面 */
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        .btn-main-action {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-main-action:hover { background-color: #0056b3; }
+
+        .btn-rank-home {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: #6f42c1;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* 3. 玩家資訊與計時器顯示欄 */
+        .info-bar {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 410px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #444;
+            margin-bottom: 10px;
+            padding: 0 5px;
+        }
+        .timer-box { color: #d9534f; }
+
+        /* 4. 🎮 主遊戲區容器 */
+        .game-container {
+            display: none; /* 預設隱藏 */
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            background: #fff;
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: relative;
+            width: 100%;
+            max-width: 430px;
+        }
+
+        /* 5. 數獨棋盤網格：自動按螢幕縮放 */
         .grid {
             display: grid;
-            grid-template-columns: repeat(9, 45px); /* 固定 9 欄，每欄 45px */
-            grid-template-rows: repeat(9, 45px);    /* 固定 9 列，每列 45px */
-            background-color: #ccc;                 /* 灰色細線背景底色 */
-            border: 4px solid #000;                 /* 最外層黑色粗邊框 */
-            gap: 1px;                               /* 格子與格子之間的 1px 間隔 */
-            box-sizing: content-box;
-        }
-
-        /* 7. 每個單一小格子的樣式 */
-        .cell {
-            width: 45px;
-            height: 45px;
-            text-align: center;              /* 數字水平置中 */
-            font-size: 20px;
-            font-weight: bold;
-            outline: none;                   /* 移除點擊時預設的黑框 */
-            border: none;                    /* 邊框交由外層 gap/border 處理 */
-            background-color: #fff;          /* 格子預設純白背景 */
+            grid-template-columns: repeat(9, 1fr);
+            grid-template-rows: repeat(9, 1fr);
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 1 / 1; /* 保持正方形 */
+            background-color: #ccc;
+            border: 3px solid #000;
+            gap: 1px;
             box-sizing: border-box;
-            color: #007bff;                  /* 玩家填入數字預設為鮮豔藍色 */
-            cursor: pointer;                 /* 滑鼠移上去顯示點擊手勢 */
-            caret-color: transparent;        /* 隱藏輸入框閃爍的游標 I */
-            user-select: none;               /* 禁止藍色反白選取文字 */
-            transition: background-color 0.2s ease; /* 背景色彩轉換平滑動畫 */
         }
 
-        /* 8. 3x3 九宮格黑粗線精準劃分 */
-        .border-right-thick { border-right: 3px solid #000 !important; }  /* 第 3、6 欄右側加黑色粗線 */
-        .border-bottom-thick { border-bottom: 3px solid #000 !important; }/* 第 3、6 列底部加黑色粗線 */
+        /* 6. 每個單一格子 (改用 div 徹底防止手機鍵盤跳出) */
+        .cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: clamp(16px, 5vw, 22px);
+            font-weight: bold;
+            background-color: #fff;
+            color: #007bff;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+        }
 
-        /* 9. 格子動態狀態樣式 */
+        /* 九宮格黑粗線劃分 */
+        .border-right-thick { border-right: 2.5px solid #000 !important; }
+        .border-bottom-thick { border-bottom: 2.5px solid #000 !important; }
+
+        /* 格子狀態樣式 */
         .given { 
-            background-color: #f8f9fa;       /* 題目預設底色：極淺灰 */
-            color: #333 !important;          /* 題目預設數字：深灰色 */
+            background-color: #f8f9fa; 
+            color: #333 !important; 
         }
         .selected {
-            background-color: #bbdefb !important; /* 選中的格子：柔和淡藍底色 */
+            background-color: #bbdefb !important; /* 選中的亮藍色 */
         }
         .same-number {
-            background-color: #fff9c4 !important; /* 全盤相同數字：溫柔淡黃底色 */
+            background-color: #fff9c4 !important; /* 全盤相同數字淡黃色 */
         }
         .conflict { 
-            background-color: #ffcccc !important; /* 違規重複的數字：粉紅底色 */
-            color: #dc3545 !important;          /* 違規重複的數字：鮮紅字體 */
+            background-color: #ffcccc !important; 
+            color: #dc3545 !important; 
         }
 
-        /* 10. 右側按鈕面板排版 (1-9 直排 + 功能按鈕直排) */
-        .side-panel {
-            display: flex;
-            flex-direction: row;             /* 橫向並排 */
-            gap: 12px;
-            align-self: stretch;             /* 讓面板高度伸展與棋盤等高 */
-        }
-
-        /* 🌟 1-9 數字按鈕區：設定與棋盤等高，並使用 space-between 平均分散 1~9 按鈕 */
+        /* 7. 📱 1-9 數字鍵盤 (橫向一字排開) */
         .numpad {
             display: flex;
-            flex-direction: column;          /* 直排 */
-            justify-content: space-between;  /* 關鍵：1 到 9 號在垂直方向上等距平均分散 */
-            height: 100%;                    /* 填滿整體高度 */
+            justify-content: space-between;
+            width: 100%;
+            gap: 4px;
         }
         .num-btn {
-            width: 45px;
-            height: 40px;                    /* 微調高度，視覺更飽滿對齊 */
+            flex: 1;
+            height: 42px;
             font-size: 18px;
             font-weight: bold;
-            border: 2px solid #007bff;
+            border: 1.5px solid #007bff;
             background-color: #fff;
             color: #007bff;
             border-radius: 6px;
             cursor: pointer;
-            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
         }
-        .num-btn:hover:not(:disabled) { 
-            background-color: #007bff; 
-            color: #fff; 
-        }
-        /* 當某數字在盤面填滿 9 個且無誤時自動變灰停用 */
         .num-btn:disabled {
             background-color: #e0e0e0;
             border-color: #ccc;
             color: #a0a0a0;
-            cursor: not-allowed;
             opacity: 0.5;
         }
 
-        /* 右側功能按鈕區：頂部暫停、中間三鍵、置底排名 */
-        .action-buttons {
+        /* 8. 🛠️ 功能按鈕區 (雙行佈局) */
+        .action-buttons-mobile {
             display: flex;
             flex-direction: column;
-            justify-content: space-between;  /* 均勻分散 */
-            height: 100%;                    /* 填滿高度 */
+            gap: 8px;
+            width: 100%;
         }
-
-        /* 中間三個按鈕（復原、清除、放棄）組合容器 */
-        .middle-buttons {
+        .btn-row {
             display: flex;
-            flex-direction: column;
-            gap: 8px;                        /* 中間三個按鈕維持精緻間距 */
+            gap: 8px;
+            width: 100%;
         }
+        .btn-row button {
+            flex: 1;
+            padding: 8px 4px;
+            font-size: 13px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-warning { background-color: #ffc107; color: #212529 !important; }
+        .btn-info { background-color: #17a2b8; }
+        .btn-secondary { background-color: #6c757d; }
+        .btn-danger { background-color: #dc3545; }
+        .btn-purple { background-color: #6f42c1; }
 
-        /* 11. 暫停時覆蓋棋盤的半透明遮罩 */
+        /* 9. 暫停遮罩層 */
         .pause-overlay {
-            display: none;                   /* 預設隱藏 */
+            display: none;
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.96);
             border-radius: 12px;
             z-index: 10;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
             color: #333;
         }
 
-        /* 12. 🏆 排行榜彈窗 (Modal) 樣式 */
+        /* 10. 🏆 排行榜彈窗 (手機適配 RWD 滾動版) */
         .modal-overlay {
-            display: none;                   /* 預設隱藏 */
+            display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5);  /* 半透明黑色背景 */
+            background: rgba(0, 0, 0, 0.6);
             z-index: 100;
             justify-content: center;
             align-items: center;
+            padding: 10px;
         }
 
         .modal-content {
             background: white;
-            padding: 24px;
+            padding: 16px;
             border-radius: 12px;
-            max-width: 850px;
-            width: 90%;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        .modal-header {
+        .modal-header h2 { margin: 0; font-size: 18px; color: #333; text-align: center; }
+
+        /* 📱 排行榜難度切換頁籤 (Tab) */
+        .tab-container {
             display: flex;
-            justify-content: space-between;
-            width: 100%;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-        }
-
-        .modal-header h2 { margin: 0; color: #333; }
-
-        /* 4 欄難度並排表格容器 */
-        .leaderboard-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr); /* 4 欄等寬 */
-            gap: 15px;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        .rank-column {
-            background: #f8f9fa;
+            gap: 4px;
+            margin: 12px 0;
+            background: #eee;
+            padding: 3px;
             border-radius: 8px;
-            padding: 10px;
-            border: 1px solid #e9ecef;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 6px 0;
+            font-size: 12px;
+            font-weight: bold;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #666;
+        }
+        .tab-btn.active {
+            background: white;
+            color: #007bff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
-        .rank-column h3 {
-            text-align: center;
-            margin-top: 0;
-            margin-bottom: 10px;
-            font-size: 15px;
-            color: #007bff;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 5px;
+        /* 📱 排行榜內容列表 (可垂直滾動) */
+        .leaderboard-scroll-area {
+            overflow-y: auto;
+            max-height: 250px;
+            margin-bottom: 12px;
+            padding-right: 5px;
         }
 
         .rank-list {
             list-style: none;
             padding: 0;
             margin: 0;
-            font-size: 13px;
+            font-size: 14px;
         }
 
         .rank-item {
             display: flex;
             justify-content: space-between;
-            padding: 4px 0;
+            padding: 8px 4px;
             border-bottom: 1px dashed #ddd;
         }
-
-        .rank-item:last-child { border-bottom: none; }
-        .rank-badge { font-weight: bold; width: 22px; }
-        .rank-name { text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 90px; }
+        .rank-badge { font-weight: bold; width: 30px; }
+        .rank-name { text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 120px; }
         .rank-time { color: #d9534f; font-weight: bold; }
 
-        /* 排行榜底部按鈕列容器 */
         .modal-footer {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             justify-content: center;
-            width: 100%;
             padding-top: 10px;
             border-top: 1px solid #eee;
         }
@@ -400,111 +331,93 @@
 </head>
 <body>
 
-    <!-- 網頁標題 -->
+    <!-- 標題 -->
     <h1>🧩 網頁線上數獨</h1>
     
-    <!-- 頂部設定區塊（遊戲開始後會隱藏） -->
+    <!-- 🏠 1. 首頁設定卡片 -->
     <div class="controls" id="controlsBlock">
-        <!-- 玩家姓名輸入框 -->
-        <label>玩家姓名：
+        <div class="form-group">
+            <label>👤 玩家姓名：</label>
             <input type="text" id="playerName" class="player-input" placeholder="請輸入姓名">
-        </label>
+        </div>
 
-        <!-- 難度下拉選單（預設為請選擇難度） -->
-        <label for="difficulty">難度：</label>
-        <select id="difficulty">
-            <option value="" selected disabled>-- 請選擇難度 --</option>
-            <option value="easy">簡單 (Easy)</option>
-            <option value="medium">中等 (Medium)</option>
-            <option value="hard">困難 (Hard)</option>
-            <option value="expert">超困難 (Expert)</option>
-        </select>
+        <div class="form-group">
+            <label>🎯 選擇難度：</label>
+            <select id="difficulty">
+                <option value="" selected disabled>-- 請選擇難度 --</option>
+                <option value="easy">簡單 (Easy)</option>
+                <option value="medium">中等 (Medium)</option>
+                <option value="hard">困難 (Hard)</option>
+                <option value="expert">超困難 (Expert)</option>
+            </select>
+        </div>
 
-        <!-- 開始遊戲按鈕 -->
-        <button class="btn-action" id="startBtn" onclick="startGame()">▶ 開始遊戲</button>
-
-        <!-- 🏆 排行榜常態按鈕 (主選單頁情境) -->
-        <button class="btn-rank" onclick="openLeaderboard('home')">🏆 排名</button>
+        <button class="btn-main-action" id="startBtn" onclick="startGame()">▶ 開始遊戲</button>
+        <button class="btn-rank-home" onclick="openLeaderboard('home')">🏆 英雄榜</button>
     </div>
 
-    <!-- 玩家資訊與計時器（遊戲開始後才顯示） -->
+    <!-- 2. 玩家資訊與計時器 -->
     <div class="info-bar" id="infoBar" style="display: none;">
         <div>👤 玩家：<span id="playerDisplay">匿名玩家</span></div>
         <div class="timer-box">⏱️ 用時：<span id="timer">00:00</span></div>
     </div>
 
-    <!-- 主遊戲區塊（棋盤 + 右側 1-9 直排按鈕 + 功能鍵） -->
+    <!-- 🎮 3. 遊戲主區塊 (棋盤 + 橫排按鈕 + 雙行功能鍵) -->
     <div class="game-container" id="gameContainer">
-        <!-- 暫停遮罩層 -->
+        <!-- 暫停遮罩 -->
         <div class="pause-overlay" id="pauseOverlay">⏸️ 遊戲暫停中</div>
 
-        <!-- 81 格數獨棋盤容器 -->
+        <!-- 81 格數獨棋盤 (純 div 不會跳手機鍵盤) -->
         <div id="board" class="grid"></div>
 
-        <!-- 右側按鈕面板 -->
-        <div class="side-panel">
-            <!-- 1~9 數字按鈕區 (高度拉滿 + 等距分散) -->
-            <div class="numpad" id="numpad"></div>
+        <!-- 1~9 數字鍵盤 (橫排一字排開) -->
+        <div class="numpad" id="numpad"></div>
 
-            <!-- 功能按鈕區：頂部暫停、中間三鍵、置底排名 -->
-            <div class="action-buttons">
-                <!-- 1. 最頂部：暫停 -->
-                <button class="btn-warning" id="pauseBtn" onclick="togglePause()">⏸️<br>暫停</button>
-                
-                <!-- 2. 中間區：復原、清除、放棄 -->
-                <div class="middle-buttons">
-                    <button class="btn-info" onclick="undoMove()">↩️<br>復原</button>
-                    <button class="btn-secondary" onclick="clearBoardKeepTimer()">🧹<br>清除</button>
-                    <button class="btn-danger" onclick="giveUp()">🏳️<br>放棄</button>
-                </div>
-
-                <!-- 3. 最底部：排名（精準對齊 9 號） -->
-                <button class="btn-purple" onclick="openLeaderboard('game')">🏆<br>排名</button>
+        <!-- 功能按鈕區 (雙行精緻佈局) -->
+        <div class="action-buttons-mobile">
+            <!-- 第 1 行：暫停與排名 -->
+            <div class="btn-row">
+                <button class="btn-warning" id="pauseBtn" onclick="togglePause()">⏸️ 暫停</button>
+                <button class="btn-purple" onclick="openLeaderboard('game')">🏆 排名</button>
+            </div>
+            <!-- 第 2 行：復原、清除、放棄 -->
+            <div class="btn-row">
+                <button class="btn-info" onclick="undoMove()">↩️ 復原</button>
+                <button class="btn-secondary" onclick="clearBoardKeepTimer()">🧹 清除</button>
+                <button class="btn-danger" onclick="giveUp()">🏳️ 放棄</button>
             </div>
         </div>
     </div>
 
-    <!-- 🏆 排行榜彈窗 (Modal) -->
+    <!-- 🏆 4. 排行榜彈窗 (RWD Tab 頁籤切換版) -->
     <div class="modal-overlay" id="rankModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>🏆 英雄榜 (Top 5 - 全球連線版)</h2>
+                <h2>🏆 英雄榜 (Top 5 - 全球連線)</h2>
             </div>
             
-            <!-- 四大難度並排列表 -->
-            <div class="leaderboard-grid">
-                <!-- 1. 簡單 (Easy) -->
-                <div class="rank-column">
-                    <h3>簡單 (Easy)</h3>
-                    <ul class="rank-list" id="rank-easy"></ul>
-                </div>
-                <!-- 2. 中等 (Medium) -->
-                <div class="rank-column">
-                    <h3>中等 (Medium)</h3>
-                    <ul class="rank-list" id="rank-medium"></ul>
-                </div>
-                <!-- 3. 困難 (Hard) -->
-                <div class="rank-column">
-                    <h3>困難 (Hard)</h3>
-                    <ul class="rank-list" id="rank-hard"></ul>
-                </div>
-                <!-- 4. 超困難 (Expert) -->
-                <div class="rank-column">
-                    <h3>超困難 (Expert)</h3>
-                    <ul class="rank-list" id="rank-expert"></ul>
-                </div>
+            <!-- 難度切換頁籤 -->
+            <div class="tab-container">
+                <button class="tab-btn active" id="tab-easy" onclick="switchRankTab('easy')">簡單</button>
+                <button class="tab-btn" id="tab-medium" onclick="switchRankTab('medium')">中等</button>
+                <button class="tab-btn" id="tab-hard" onclick="switchRankTab('hard')">困難</button>
+                <button class="tab-btn" id="tab-expert" onclick="switchRankTab('expert')">超難</button>
             </div>
 
-            <!-- 動態底部按鈕區 -->
+            <!-- 可滑動列表 -->
+            <div class="leaderboard-scroll-area">
+                <ul class="rank-list" id="activeRankList"></ul>
+            </div>
+
             <div class="modal-footer">
                 <button class="btn-secondary" id="btnRankHome" onclick="closeLeaderboard()">🏠 返回首頁</button>
-                <button class="btn-success" id="btnRankContinue" onclick="continueGameFromRank()">▶ 繼續遊戲</button>
-                <button class="btn-danger" id="btnRankGiveUp" onclick="giveUpFromRank()">🏳️ 放棄遊戲</button>
+                <button class="btn-main-action" style="padding: 8px 16px; width: auto;" id="btnRankContinue" onclick="continueGameFromRank()">▶ 繼續遊戲</button>
+                <button class="btn-danger" style="width: auto;" id="btnRankGiveUp" onclick="giveUpFromRank()">🏳️ 放棄遊戲</button>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript 雲端與遊戲邏輯區塊 (使用 ES6 Module 載入 Firebase) -->
+    <!-- Firebase 雲端資料庫 SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -523,6 +436,7 @@
         const db = getDatabase(app);
 
         let globalLeaderboardData = { easy: [], medium: [], hard: [], expert: [] };
+        window.currentRankTab = 'easy';
 
         const leaderboardRef = ref(db, 'leaderboard');
         onValue(leaderboardRef, (snapshot) => {
@@ -539,6 +453,7 @@
                 });
             }
             globalLeaderboardData = parsedData;
+            if (window.renderLeaderboardUI) window.renderLeaderboardUI();
         });
 
         window.recordScoreToCloud = function(name, seconds, timeStr, diff) {
@@ -547,42 +462,40 @@
         };
 
         window.renderLeaderboardUI = function() {
-            const diffs = ['easy', 'medium', 'hard', 'expert'];
+            const listEl = document.getElementById('activeRankList');
+            if (!listEl) return;
+            listEl.innerHTML = '';
 
-            diffs.forEach(diff => {
-                const listEl = document.getElementById(`rank-${diff}`);
-                listEl.innerHTML = '';
-                const items = globalLeaderboardData[diff] || [];
+            const items = globalLeaderboardData[window.currentRankTab] || [];
 
-                for (let i = 0; i < 5; i++) {
-                    const li = document.createElement('li');
-                    li.className = 'rank-item';
+            for (let i = 0; i < 5; i++) {
+                const li = document.createElement('li');
+                li.className = 'rank-item';
 
-                    let badge = `${i + 1}.`;
-                    if (i === 0) badge = '🥇';
-                    else if (i === 1) badge = '🥈';
-                    else if (i === 2) badge = '🥉';
+                let badge = `${i + 1}.`;
+                if (i === 0) badge = '🥇';
+                else if (i === 1) badge = '🥈';
+                else if (i === 2) badge = '🥉';
 
-                    if (items[i]) {
-                        li.innerHTML = `
-                            <span class="rank-badge">${badge}</span>
-                            <span class="rank-name">${items[i].name}</span>
-                            <span class="rank-time">${items[i].timeStr}</span>
-                        `;
-                    } else {
-                        li.innerHTML = `
-                            <span class="rank-badge">${badge}</span>
-                            <span class="rank-name" style="color: #ccc;">-- 虛位以待 --</span>
-                            <span class="rank-time" style="color: #ccc;">--:--</span>
-                        `;
-                    }
-                    listEl.appendChild(li);
+                if (items[i]) {
+                    li.innerHTML = `
+                        <span class="rank-badge">${badge}</span>
+                        <span class="rank-name">${items[i].name}</span>
+                        <span class="rank-time">${items[i].timeStr}</span>
+                    `;
+                } else {
+                    li.innerHTML = `
+                        <span class="rank-badge">${badge}</span>
+                        <span class="rank-name" style="color: #ccc;">-- 虛位以待 --</span>
+                        <span class="rank-time" style="color: #ccc;">--:--</span>
+                    `;
                 }
-            });
+                listEl.appendChild(li);
+            }
         };
     </script>
 
-    <!-- 主遊戲核心邏輯 -->
+    <!-- 遊戲主邏輯 -->
     <script>
         const puzzles = {
             easy: [
@@ -615,17 +528,23 @@
         let timerInterval = null, secondsElapsed = 0;
         let gameFinished = false, isPaused = false, isGameStarted = false;
 
-        function openLeaderboard(source = 'home') {
+        function switchRankTab(diff) {
+            window.currentRankTab = diff;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${diff}`).classList.add('active');
             if (window.renderLeaderboardUI) window.renderLeaderboardUI();
+        }
+
+        function openLeaderboard(source = 'home') {
+            if (isGameStarted && currentDifficulty) switchRankTab(currentDifficulty);
+            else switchRankTab('easy');
 
             const btnHome = document.getElementById('btnRankHome');
             const btnContinue = document.getElementById('btnRankContinue');
             const btnGiveUp = document.getElementById('btnRankGiveUp');
 
             if (source === 'game') {
-                if (isGameStarted && !gameFinished && !isPaused) {
-                    togglePause();
-                }
+                if (isGameStarted && !gameFinished && !isPaused) togglePause();
                 btnHome.style.display = 'none';
                 btnContinue.style.display = 'inline-block';
                 btnGiveUp.style.display = 'inline-block';
@@ -640,9 +559,7 @@
 
         function continueGameFromRank() {
             closeLeaderboard();
-            if (isPaused) {
-                togglePause();
-            }
+            if (isPaused) togglePause();
         }
 
         function giveUpFromRank() {
@@ -675,7 +592,6 @@
             currentBoard = JSON.parse(JSON.stringify(initialBoard));
 
             document.getElementById('playerDisplay').innerText = nameInput;
-            
             document.getElementById('controlsBlock').style.display = 'none';
             document.getElementById('infoBar').style.display = 'flex';
             document.getElementById('gameContainer').style.display = 'flex';
@@ -683,7 +599,7 @@
             isGameStarted = true;
             isPaused = false;
             document.getElementById('pauseOverlay').style.display = 'none';
-            document.getElementById('pauseBtn').innerHTML = '⏸️<br>暫停';
+            document.getElementById('pauseBtn').innerHTML = '⏸️ 暫停';
 
             startTimer();
             resetBoardStateOnly();
@@ -697,19 +613,16 @@
             document.getElementById('gameContainer').style.display = 'none';
             document.getElementById('infoBar').style.display = 'none';
             document.getElementById('controlsBlock').style.display = 'flex';
-
             document.getElementById('difficulty').selectedIndex = 0;
         }
 
         function giveUp() {
-            if (confirm('確定要放棄這局遊戲嗎？')) {
-                returnToHome();
-            }
+            if (confirm('確定要放棄這局遊戲嗎？')) returnToHome();
         }
 
         function clearBoardKeepTimer() {
             if (!isGameStarted || gameFinished || isPaused) return;
-            if (confirm('確定要清除所有已填寫的數字嗎？（計時將不會停止）')) {
+            if (confirm('確定要清除所有已填寫的數字嗎？（計時不中斷）')) {
                 currentBoard = JSON.parse(JSON.stringify(initialBoard));
                 moveHistory = [];
                 selectedCell = null;
@@ -718,25 +631,17 @@
         }
 
         function undoMove() {
-            if (!isGameStarted || gameFinished || isPaused) return;
-            if (moveHistory.length === 0) return;
+            if (!isGameStarted || gameFinished || isPaused || moveHistory.length === 0) return;
 
             const lastMove = moveHistory.pop();
             currentBoard[lastMove.r][lastMove.c] = lastMove.oldVal;
-
-            const cellEl = document.getElementById(`cell-${lastMove.r}-${lastMove.c}`);
-            if (cellEl) {
-                cellEl.value = lastMove.oldVal !== 0 ? lastMove.oldVal : '';
-            }
 
             selectCell(lastMove.r, lastMove.c);
             handleBoardChange();
         }
 
         function recordMove(r, c, oldVal, newVal) {
-            if (oldVal !== newVal) {
-                moveHistory.push({ r, c, oldVal, newVal });
-            }
+            if (oldVal !== newVal) moveHistory.push({ r, c, oldVal, newVal });
         }
 
         function startTimer() {
@@ -770,10 +675,10 @@
 
             if (isPaused) {
                 overlay.style.display = 'flex';
-                pauseBtn.innerHTML = '▶<br>繼續';
+                pauseBtn.innerHTML = '▶ 繼續';
             } else {
                 overlay.style.display = 'none';
-                pauseBtn.innerHTML = '⏸️<br>暫停';
+                pauseBtn.innerHTML = '⏸️ 暫停';
             }
         }
 
@@ -783,40 +688,23 @@
 
             for (let r = 0; r < 9; r++) {
                 for (let c = 0; c < 9; c++) {
-                    const input = document.createElement('input');
-                    input.type = 'text'; 
-                    input.maxLength = 1; 
-                    input.className = 'cell'; 
-                    input.id = `cell-${r}-${c}`;
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.id = `cell-${r}-${c}`;
 
-                    if (c === 2 || c === 5) input.classList.add('border-right-thick');
-                    if (r === 2 || r === 5) input.classList.add('border-bottom-thick');
+                    if (c === 2 || c === 5) cell.classList.add('border-right-thick');
+                    if (r === 2 || r === 5) cell.classList.add('border-bottom-thick');
 
                     const val = currentBoard[r][c];
                     if (initialBoard[r][c] !== 0) {
-                        input.value = val;
-                        input.readOnly = true;
-                        input.classList.add('given');
+                        cell.innerText = val;
+                        cell.classList.add('given');
                     } else if (val !== 0) {
-                        input.value = val;
+                        cell.innerText = val;
                     }
 
-                    input.onclick = () => selectCell(r, c);
-
-                    input.oninput = function() {
-                        if (gameFinished || isPaused) return;
-                        const oldVal = currentBoard[r][c];
-                        const num = parseInt(this.value);
-                        let newVal = 0;
-                        if (/^[1-9]$/.test(this.value)) newVal = num;
-                        else this.value = '';
-
-                        currentBoard[r][c] = newVal;
-                        recordMove(r, c, oldVal, newVal);
-                        handleBoardChange();
-                    };
-
-                    boardElement.appendChild(input);
+                    cell.onclick = () => selectCell(r, c);
+                    boardElement.appendChild(cell);
                 }
             }
             createNumpad();
@@ -835,8 +723,8 @@
             numpad.innerHTML = '';
             for (let i = 1; i <= 9; i++) {
                 const btn = document.createElement('button');
-                btn.className = 'num-btn'; 
-                btn.id = `num-btn-${i}`; 
+                btn.className = 'num-btn';
+                btn.id = `num-btn-${i}`;
                 btn.innerText = i;
                 btn.onclick = function() {
                     if (gameFinished || isPaused || !selectedCell) return;
@@ -844,7 +732,7 @@
                     if (initialBoard[r][c] === 0) {
                         const oldVal = currentBoard[r][c];
                         currentBoard[r][c] = i;
-                        document.getElementById(`cell-${r}-${c}`).value = i;
+                        document.getElementById(`cell-${r}-${c}`).innerText = i;
                         recordMove(r, c, oldVal, i);
                         handleBoardChange();
                     }
@@ -952,7 +840,7 @@
             selectedCell = null;
             isPaused = false;
             document.getElementById('pauseOverlay').style.display = 'none';
-            document.getElementById('pauseBtn').innerHTML = '⏸️<br>暫停';
+            document.getElementById('pauseBtn').innerHTML = '⏸️ 暫停';
             renderBoard();
         }
     </script>

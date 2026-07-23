@@ -3,11 +3,11 @@
 <head>
     <!-- 設定網頁編碼為 UTF-8 -->
     <meta charset="UTF-8">
-    <!-- 設定響應式網頁 RWD，完美適配手機與電腦螢幕，禁止不必要的縮放 -->
+    <!-- 設定響應式網頁 RWD，完美適配手機與電腦螢幕 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>網頁版數獨小遊戲 5.1 (修復復原與行行註解版)</title>
+    <title>網頁版數獨小遊戲 6.0 (無限隨機與雙欄響應版)</title>
     
-    <!-- CSS 樣式區塊：定義全域與組件外觀 -->
+    <!-- CSS 樣式區塊：定義全螢幕 RWD 與動態佈局 -->
     <style>
         /* 1. 設定所有元素的盒子模型與觸控優化 */
         * {
@@ -15,7 +15,7 @@
             touch-action: manipulation;
         }
 
-        /* 2. 全局頁面與背景樣式 */
+        /* 2. 全局頁面與背景樣式 (手機預設直向置中) */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
             display: flex;
@@ -35,7 +35,7 @@
             font-size: 24px;
         }
 
-        /* 4. 首頁設定卡片面板 (垂直卡片佈局) */
+        /* 4. 首頁設定卡片面板 (手機直向置中寬度) */
         .controls {
             display: flex;
             flex-direction: column;
@@ -48,7 +48,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        /* 5. 輸入框與下拉選單的群組包裝 */
+        /* 5. 輸入框與下拉選單群組 */
         .form-group {
             display: flex;
             flex-direction: column;
@@ -59,7 +59,7 @@
             font-size: 14px;
         }
 
-        /* 6. 輸入欄位本體樣式 (防止 iOS 縮放) */
+        /* 6. 輸入欄位本體樣式 (防 iOS 縮放) */
         input[type="text"].player-input, select {
             width: 100%;
             padding: 10px 12px;
@@ -99,7 +99,7 @@
 
         /* 9. 遊戲中頂部資訊欄 (玩家姓名與計時器) */
         .info-bar {
-            display: flex;
+            display: none;
             justify-content: space-between;
             width: 100%;
             max-width: 410px;
@@ -111,7 +111,7 @@
         }
         .timer-box { color: #d9534f; }
 
-        /* 10. 遊戲主容器區塊 */
+        /* 10. 遊戲主容器區塊 (手機預設直向單欄) */
         .game-container {
             display: none;
             flex-direction: column;
@@ -348,6 +348,47 @@
         .modal-footer .btn-continue { background-color: #28a745; color: white; }
         .modal-footer .btn-giveup { background-color: #dc3545; color: white; }
         .modal-footer button:active { transform: scale(0.96); }
+
+        /* ==========================================================
+           🌟 23. 電腦大螢幕響應式媒體查詢 (Media Query: 寬度 >= 768px)
+           自動將介面切換回漂亮的電腦版雙欄寬螢幕配置！
+           ========================================================== */
+        @media (min-width: 768px) {
+            .controls {
+                max-width: 450px;
+                padding: 30px;
+            }
+            .game-container {
+                max-width: 720px; /* 電腦版容器加寬 */
+                flex-direction: row; /* 左右並排佈局 */
+                align-items: flex-start;
+                justify-content: center;
+                gap: 20px;
+                padding: 20px;
+            }
+            .grid {
+                max-width: 420px; /* 棋盤大小固定 */
+            }
+            .info-bar {
+                max-width: 720px;
+            }
+            /* 右側控制面板 (包含數字鍵與功能按鈕) */
+            .right-panel {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+                width: 260px;
+            }
+            .numpad {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr); /* 電腦版數字鍵改為 3x3 矩陣更方便點擊 */
+                gap: 6px;
+            }
+            .num-btn {
+                height: 50px;
+                font-size: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -357,13 +398,11 @@
     
     <!-- 🏠 首頁設定控制面板 -->
     <div class="controls" id="controlsBlock">
-        <!-- 玩家姓名輸入群組 -->
         <div class="form-group">
             <label>👤 玩家姓名：</label>
             <input type="text" id="playerName" class="player-input" placeholder="請輸入姓名">
         </div>
 
-        <!-- 遊戲難度選擇群組 -->
         <div class="form-group">
             <label>🎯 選擇難度：</label>
             <select id="difficulty">
@@ -375,40 +414,40 @@
             </select>
         </div>
 
-        <!-- 開始遊戲與英雄榜按鈕 -->
         <button class="btn-main-action" id="startBtn" onclick="startGame()">▶ 開始遊戲</button>
         <button class="btn-rank-home" onclick="openLeaderboard('home')">🏆 英雄榜</button>
     </div>
 
-    <!-- 遊戲中頂部玩家與計時狀態列 (預設隱藏) -->
-    <div class="info-bar" id="infoBar" style="display: none;">
+    <!-- 遊戲中頂部玩家與計時狀態列 -->
+    <div class="info-bar" id="infoBar">
         <div>👤 玩家：<span id="playerDisplay">匿名玩家</span></div>
         <div class="timer-box">⏱️ 用時：<span id="timer">00:00</span></div>
     </div>
 
-    <!-- 🎮 遊戲主介面容器 (棋盤與按鈕) -->
+    <!-- 🎮 遊戲主介面容器 (電腦版會自動變為左右雙欄) -->
     <div class="game-container" id="gameContainer">
         <!-- 遊戲暫停遮罩 -->
         <div class="pause-overlay" id="pauseOverlay">⏸️ 遊戲暫停中</div>
 
-        <!-- 81格數獨棋盤渲染目標 -->
+        <!-- 81格數獨棋盤渲染目標 (左側) -->
         <div id="board" class="grid"></div>
 
-        <!-- 1~9 數字鍵盤橫排 -->
-        <div class="numpad" id="numpad"></div>
+        <!-- 右側控制面板群組 (電腦版並排用) -->
+        <div class="right-panel">
+            <!-- 1~9 數字鍵盤 -->
+            <div class="numpad" id="numpad"></div>
 
-        <!-- 功能按鈕雙行區塊 -->
-        <div class="action-buttons-mobile">
-            <!-- 第 1 行：暫停與排名 -->
-            <div class="btn-row">
-                <button class="btn-warning" id="pauseBtn" onclick="togglePause()">⏸️ 暫停</button>
-                <button class="btn-purple" onclick="openLeaderboard('game')">🏆 排名</button>
-            </div>
-            <!-- 第 2 行：復原、清除、放棄 -->
-            <div class="btn-row">
-                <button class="btn-info" onclick="undoMove()">↩️ 復原</button>
-                <button class="btn-secondary" onclick="clearBoardKeepTimer()">🧹 清除</button>
-                <button class="btn-danger" onclick="giveUp()">🏳️ 放棄</button>
+            <!-- 功能按鈕雙行區塊 -->
+            <div class="action-buttons-mobile">
+                <div class="btn-row">
+                    <button class="btn-warning" id="pauseBtn" onclick="togglePause()">⏸️ 暫停</button>
+                    <button class="btn-purple" onclick="openLeaderboard('game')">🏆 排名</button>
+                </div>
+                <div class="btn-row">
+                    <button class="btn-info" onclick="undoMove()">↩️ 復原</button>
+                    <button class="btn-secondary" onclick="clearBoardKeepTimer()">🧹 清除</button>
+                    <button class="btn-danger" onclick="giveUp()">🏳️ 放棄</button>
+                </div>
             </div>
         </div>
     </div>
@@ -420,7 +459,6 @@
                 <h2>🏆 英雄榜 (Top 5 - 全球連線)</h2>
             </div>
             
-            <!-- 排行榜難度切換 Tab -->
             <div class="tab-container">
                 <button class="tab-btn active" id="tab-easy" onclick="switchRankTab('easy')">簡單</button>
                 <button class="tab-btn" id="tab-medium" onclick="switchRankTab('medium')">中等</button>
@@ -428,12 +466,10 @@
                 <button class="tab-btn" id="tab-expert" onclick="switchRankTab('expert')">超難</button>
             </div>
 
-            <!-- 榜單滾動區域 -->
             <div class="leaderboard-scroll-area">
                 <ul class="rank-list" id="activeRankList"></ul>
             </div>
 
-            <!-- 彈窗底部膠囊按鈕區 -->
             <div class="modal-footer">
                 <button class="btn-home" id="btnRankHome" onclick="closeLeaderboard()">🏠 返回首頁</button>
                 <button class="btn-continue" id="btnRankContinue" onclick="continueGameFromRank()">▶ 繼續遊戲</button>
@@ -447,7 +483,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-        /* Firebase 專案設定連線憑證 */
         const firebaseConfig = {
             apiKey: "AIzaSyALmDAZBk6rQON7Ifqd23vHD-niSAG4Fh4",
             authDomain: "python-sudoku.firebaseapp.com",
@@ -458,15 +493,12 @@
             appId: "1:26285195175:web:1b64eb9a22908cbf1c0082"
         };
 
-        /* 初始化 Firebase 應用與資料庫實例 */
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        /* 全域排行榜資料結構與預設當前 Tab */
         let globalLeaderboardData = { easy: [], medium: [], hard: [], expert: [] };
         window.currentRankTab = 'easy';
 
-        /* 監聽雲端資料庫中 leaderboard 的即時變動 */
         const leaderboardRef = ref(db, 'leaderboard');
         onValue(leaderboardRef, (snapshot) => {
             const data = snapshot.val();
@@ -476,8 +508,8 @@
                 Object.keys(data).forEach(diff => {
                     if (data[diff]) {
                         const list = Object.values(data[diff]);
-                        list.sort((a, b) => a.seconds - b.seconds); // 依花費時間由快到慢排序
-                        parsedData[diff] = list.slice(0, 5);       // 只取前 5 名
+                        list.sort((a, b) => a.seconds - b.seconds);
+                        parsedData[diff] = list.slice(0, 5);
                     }
                 });
             }
@@ -485,13 +517,11 @@
             if (window.renderLeaderboardUI) window.renderLeaderboardUI();
         });
 
-        /* 上傳玩家通關成績至 Firebase 雲端 */
         window.recordScoreToCloud = function(name, seconds, timeStr, diff) {
             const diffRef = ref(db, `leaderboard/${diff}`);
             push(diffRef, { name, seconds, timeStr, timestamp: Date.now() });
         };
 
-        /* 渲染英雄榜介面 DOM 元素 */
         window.renderLeaderboardUI = function() {
             const listEl = document.getElementById('activeRankList');
             if (!listEl) return;
@@ -526,10 +556,10 @@
         };
     </script>
 
-    <!-- 遊戲核心 JavaScript 邏輯控制 -->
+    <!-- 遊戲核心 JavaScript 邏輯控制 (含無限隨機母題變形演算法) -->
     <script>
-        /* 預設的 4 種難度數獨初始題目盤面 (0 代表空格) */
-        const puzzles = {
+        /* 基礎標準母題庫 (透過智慧變形演算法，每次點擊都能衍生出無限多種新局) */
+        const basePuzzles = {
             easy: [
                 [0, 0, 0, 2, 6, 0, 7, 0, 1], [6, 8, 0, 0, 7, 0, 0, 9, 0], [1, 9, 0, 0, 0, 4, 5, 0, 0],
                 [8, 2, 0, 1, 0, 0, 0, 4, 0], [0, 0, 4, 6, 0, 2, 9, 0, 0], [0, 5, 0, 0, 0, 3, 0, 2, 8],
@@ -552,17 +582,44 @@
             ]
         };
 
-        /* 遊戲狀態全域變數宣告 */
         let currentDifficulty = '';
-        let lastPlayedDifficulty = 'easy'; // 記憶最後遊玩的難度
-        let initialBoard = null;           // 初始題目盤面
-        let currentBoard = null;           // 當前遊玩盤面
-        let moveHistory = [];              // 玩家下棋歷史紀錄 (用於復原)
-        let selectedCell = null;           // 當前選中的格子座標 {r, c}
-        let timerInterval = null, secondsElapsed = 0; // 計時器變數
+        let lastPlayedDifficulty = 'easy';
+        let initialBoard = null;
+        let currentBoard = null;
+        let moveHistory = [];
+        let selectedCell = null;
+        let timerInterval = null, secondsElapsed = 0;
         let gameFinished = false, isPaused = false, isGameStarted = false;
 
-        /* 切換排行榜彈窗內的難度分頁 Tab */
+        /* 🌟 智慧亂數變形演算法：將母題進行隨機數字置換與鏡射，達成無限新題目效果 */
+        function generateRandomizedPuzzle(difficulty) {
+            const base = basePuzzles[difficulty];
+            const board = JSON.parse(JSON.stringify(base));
+
+            /* 1. 建立 1~9 的隨機數字對應表 (例如 1 變 4, 4 變 9...) */
+            const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+            for (let i = nums.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [nums[i], nums[j]] = [nums[j], nums[i]];
+            }
+            const mapTable = {};
+            for (let i = 0; i < 9; i++) {
+                mapTable[i + 1] = nums[i];
+            }
+            mapTable[0] = 0;
+
+            /* 2. 套用數字映射與隨機左右鏡射翻轉 */
+            const flipH = Math.random() < 0.5;
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    const targetC = flipH ? (8 - c) : c;
+                    // 同步套用對應表
+                    board[r][targetC] = mapTable[base[r][c]];
+                }
+            }
+            return board;
+        }
+
         function switchRankTab(diff) {
             window.currentRankTab = diff;
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -571,9 +628,8 @@
             if (window.renderLeaderboardUI) window.renderLeaderboardUI();
         }
 
-        /* 開啟英雄榜彈窗 */
         function openLeaderboard(source = 'home') {
-            switchRankTab(lastPlayedDifficulty || 'easy'); // 自動對齊當前難度
+            switchRankTab(lastPlayedDifficulty || 'easy');
 
             const btnHome = document.getElementById('btnRankHome');
             const btnContinue = document.getElementById('btnRankContinue');
@@ -593,24 +649,20 @@
             document.getElementById('rankModal').style.display = 'flex';
         }
 
-        /* 從排行榜返回遊戲 */
         function continueGameFromRank() {
             closeLeaderboard();
             if (isPaused) togglePause();
         }
 
-        /* 從排行榜放棄遊戲 */
         function giveUpFromRank() {
             closeLeaderboard();
             giveUp();
         }
 
-        /* 關閉排行榜彈窗 */
         function closeLeaderboard() {
             document.getElementById('rankModal').style.display = 'none';
         }
 
-        /* 開始新遊戲 */
         function startGame() {
             const nameInput = document.getElementById('playerName').value.trim();
             const diffSelect = document.getElementById('difficulty').value;
@@ -629,7 +681,9 @@
 
             currentDifficulty = diffSelect;
             lastPlayedDifficulty = diffSelect;
-            initialBoard = puzzles[currentDifficulty];
+            
+            /* 每次開始遊戲，透過亂數變形演算法即時生成一張全新的隨機棋盤！ */
+            initialBoard = generateRandomizedPuzzle(currentDifficulty);
             currentBoard = JSON.parse(JSON.stringify(initialBoard));
 
             document.getElementById('playerDisplay').innerText = nameInput;
@@ -646,7 +700,6 @@
             resetBoardStateOnly();
         }
 
-        /* 返回首頁 */
         function returnToHome() {
             stopTimer();
             isGameStarted = false;
@@ -658,12 +711,10 @@
             document.getElementById('difficulty').selectedIndex = 0;
         }
 
-        /* 放棄遊戲確認 */
         function giveUp() {
             if (confirm('確定要放棄這局遊戲嗎？')) returnToHome();
         }
 
-        /* 清除盤面但保留計時器 */
         function clearBoardKeepTimer() {
             if (!isGameStarted || gameFinished || isPaused) return;
             if (confirm('確定要清除所有已填寫的數字嗎？（計時不中斷）')) {
@@ -674,33 +725,25 @@
             }
         }
 
-        /* 🌟 真正的完美復原功能 (Undo Move) */
         function undoMove() {
             if (!isGameStarted || gameFinished || isPaused || moveHistory.length === 0) return;
 
-            /* 取出最後一步操作紀錄 */
             const lastMove = moveHistory.pop();
-            
-            /* 將內部矩陣資料還原為舊數值 (0 或之前的數字) */
             currentBoard[lastMove.r][lastMove.c] = lastMove.oldVal;
 
-            /* 🌟 關鍵修正：同步強制定向清空或更新畫面上該格子的文字！ */
             const cellEl = document.getElementById(`cell-${lastMove.r}-${lastMove.c}`);
             if (cellEl) {
                 cellEl.innerText = lastMove.oldVal === 0 ? '' : lastMove.oldVal;
             }
 
-            /* 重新選中該格子，並觸發全盤衝突檢查與按鈕狀態更新 */
             selectCell(lastMove.r, lastMove.c);
             handleBoardChange();
         }
 
-        /* 紀錄玩家的每一步下棋動作 */
         function recordMove(r, c, oldVal, newVal) {
             if (oldVal !== newVal) moveHistory.push({ r, c, oldVal, newVal });
         }
 
-        /* 啟動計時器 */
         function startTimer() {
             stopTimer();
             secondsElapsed = 0;
@@ -714,19 +757,16 @@
             }, 1000);
         }
 
-        /* 停止計時器 */
         function stopTimer() {
             if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
         }
 
-        /* 更新計時器畫面的顯示格式 (mm:ss) */
         function updateTimerDisplay() {
             const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
             const secs = (secondsElapsed % 60).toString().padStart(2, '0');
             document.getElementById('timer').innerText = `${mins}:${secs}`;
         }
 
-        /* 切換遊戲暫停狀態 */
         function togglePause() {
             if (!isGameStarted || gameFinished) return;
             isPaused = !isPaused;
@@ -742,7 +782,6 @@
             }
         }
 
-        /* 渲染數獨棋盤 DOM 結構 */
         function renderBoard() {
             const boardElement = document.getElementById('board');
             boardElement.innerHTML = '';
@@ -753,14 +792,13 @@
                     cell.className = 'cell';
                     cell.id = `cell-${r}-${c}`;
 
-                    /* 九宮格粗邊線標記 */
                     if (c === 2 || c === 5) cell.classList.add('border-right-thick');
                     if (r === 2 || r === 5) cell.classList.add('border-bottom-thick');
 
                     const val = currentBoard[r][c];
                     if (initialBoard[r][c] !== 0) {
                         cell.innerText = val;
-                        cell.classList.add('given'); // 題目給定數字不可修改
+                        cell.classList.add('given');
                     } else if (val !== 0) {
                         cell.innerText = val;
                     }
@@ -773,7 +811,6 @@
             handleBoardChange();
         }
 
-        /* 棋盤變動時的全盤處理常式 */
         function handleBoardChange() {
             const hasConflict = checkConflicts();
             updateNumpad();
@@ -781,7 +818,6 @@
             checkWinCondition(hasConflict);
         }
 
-        /* 建立 1~9 數字鍵盤 DOM */
         function createNumpad() {
             const numpad = document.getElementById('numpad');
             numpad.innerHTML = '';
@@ -805,7 +841,6 @@
             }
         }
 
-        /* 點擊選擇指定格子 */
         function selectCell(r, c) {
             if (isPaused) return;
             document.querySelectorAll('.cell').forEach(el => {
@@ -820,7 +855,6 @@
             if (selectedNum !== 0) highlightSameNumbers(selectedNum);
         }
 
-        /* 高亮顯示盤面上相同的數字 */
         function highlightSameNumbers(num) {
             document.querySelectorAll('.cell').forEach(el => el.classList.remove('same-number'));
             if (!num || num === 0) return;
@@ -834,7 +868,6 @@
             }
         }
 
-        /* 檢查數獨規則衝突 (同行、同列、同九宮格重複數字) */
         function checkConflicts() {
             document.querySelectorAll('.cell').forEach(el => el.classList.remove('conflict'));
             let anyConflict = false;
@@ -860,7 +893,6 @@
             return anyConflict;
         }
 
-        /* 更新 1-9 數字按鈕鎖定狀態 (填滿 9 個且無衝突時自動 disable) */
         function updateNumpad() {
             for (let num = 1; num <= 9; num++) {
                 let count = 0, hasConflict = false;
@@ -877,7 +909,6 @@
             }
         }
 
-        /* 檢查是否達成勝利條件 (全盤填滿且無衝突) */
         function checkWinCondition(hasConflict) {
             if (hasConflict) return;
             let isFull = true;
@@ -903,7 +934,6 @@
             }
         }
 
-        /* 重置棋盤內部狀態 */
         function resetBoardStateOnly() {
             currentBoard = JSON.parse(JSON.stringify(initialBoard));
             moveHistory = [];

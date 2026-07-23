@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <!-- 設定響應式網頁 RWD，完美適配手機與電腦螢幕 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>網頁版數獨小遊戲 3.0 (雲端連線 RWD 版)</title>
+    <title>網頁版數獨小遊戲 5.0 (手機優化版)</title>
     
     <!-- CSS 樣式區塊 -->
     <style>
@@ -133,7 +133,7 @@
             box-sizing: border-box;
         }
 
-        /* 6. 每個單一格子 (改用 div 徹底防止手機鍵盤跳出) */
+        /* 6. 每個單一格子 (純 div 防止手機鍵盤跳出) */
         .cell {
             display: flex;
             justify-content: center;
@@ -167,7 +167,7 @@
             color: #dc3545 !important; 
         }
 
-        /* 7. 📱 1-9 數字鍵盤 (橫向一字排開) */
+        /* 7. 📱 1-9 數字鍵盤 (橫排一字排開) */
         .numpad {
             display: flex;
             justify-content: space-between;
@@ -252,55 +252,56 @@
             z-index: 100;
             justify-content: center;
             align-items: center;
-            padding: 10px;
+            padding: 15px;
         }
 
         .modal-content {
             background: white;
-            padding: 16px;
-            border-radius: 12px;
-            max-width: 500px;
+            padding: 20px 16px;
+            border-radius: 16px;
+            max-width: 420px;
             width: 100%;
-            max-height: 90vh;
+            max-height: 85vh;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
-        .modal-header h2 { margin: 0; font-size: 18px; color: #333; text-align: center; }
+        .modal-header h2 { margin: 0; font-size: 19px; color: #333; text-align: center; }
 
         /* 📱 排行榜難度切換頁籤 (Tab) */
         .tab-container {
             display: flex;
             gap: 4px;
-            margin: 12px 0;
-            background: #eee;
-            padding: 3px;
-            border-radius: 8px;
+            margin: 14px 0;
+            background: #f1f3f5;
+            padding: 4px;
+            border-radius: 10px;
         }
         .tab-btn {
             flex: 1;
-            padding: 6px 0;
-            font-size: 12px;
+            padding: 8px 0;
+            font-size: 13px;
             font-weight: bold;
             border: none;
             background: transparent;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             color: #666;
+            transition: all 0.2s;
         }
         .tab-btn.active {
             background: white;
             color: #007bff;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         /* 📱 排行榜內容列表 (可垂直滾動) */
         .leaderboard-scroll-area {
             overflow-y: auto;
-            max-height: 250px;
-            margin-bottom: 12px;
-            padding-right: 5px;
+            max-height: 240px;
+            margin-bottom: 15px;
+            padding: 0 4px;
         }
 
         .rank-list {
@@ -313,19 +314,52 @@
         .rank-item {
             display: flex;
             justify-content: space-between;
-            padding: 8px 4px;
-            border-bottom: 1px dashed #ddd;
+            padding: 10px 6px;
+            border-bottom: 1px dashed #eee;
         }
         .rank-badge { font-weight: bold; width: 30px; }
-        .rank-name { text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 120px; }
+        .rank-name { text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 130px; font-weight: 500; }
         .rank-time { color: #d9534f; font-weight: bold; }
 
+        /* 🌟 重構：彈窗底部圓角膠囊按鈕區 */
         .modal-footer {
             display: flex;
             gap: 10px;
             justify-content: center;
-            padding-top: 10px;
-            border-top: 1px solid #eee;
+            align-items: center;
+            width: 100%;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .modal-footer button {
+            flex: 1;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            border-radius: 20px; /* 圓角膠囊形狀 */
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+        }
+        .modal-footer .btn-home {
+            background-color: #007bff;
+            color: white;
+        }
+        .modal-footer .btn-continue {
+            background-color: #28a745;
+            color: white;
+        }
+        .modal-footer .btn-giveup {
+            background-color: #dc3545;
+            color: white;
+        }
+        .modal-footer button:active {
+            transform: scale(0.96);
         }
     </style>
 </head>
@@ -367,7 +401,7 @@
         <!-- 暫停遮罩 -->
         <div class="pause-overlay" id="pauseOverlay">⏸️ 遊戲暫停中</div>
 
-        <!-- 81 格數獨棋盤 (純 div 不會跳手機鍵盤) -->
+        <!-- 81 格數獨棋盤 -->
         <div id="board" class="grid"></div>
 
         <!-- 1~9 數字鍵盤 (橫排一字排開) -->
@@ -389,7 +423,7 @@
         </div>
     </div>
 
-    <!-- 🏆 4. 排行榜彈窗 (RWD Tab 頁籤切換版) -->
+    <!-- 🏆 4. 排行榜彈窗 (RWD 膠囊按鈕美化版) -->
     <div class="modal-overlay" id="rankModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -409,10 +443,11 @@
                 <ul class="rank-list" id="activeRankList"></ul>
             </div>
 
+            <!-- 🌟 美化後的膠囊按鈕區 -->
             <div class="modal-footer">
-                <button class="btn-secondary" id="btnRankHome" onclick="closeLeaderboard()">🏠 返回首頁</button>
-                <button class="btn-main-action" style="padding: 8px 16px; width: auto;" id="btnRankContinue" onclick="continueGameFromRank()">▶ 繼續遊戲</button>
-                <button class="btn-danger" style="width: auto;" id="btnRankGiveUp" onclick="giveUpFromRank()">🏳️ 放棄遊戲</button>
+                <button class="btn-home" id="btnRankHome" onclick="closeLeaderboard()">🏠 返回首頁</button>
+                <button class="btn-continue" id="btnRankContinue" onclick="continueGameFromRank()">▶ 繼續遊戲</button>
+                <button class="btn-giveup" id="btnRankGiveUp" onclick="giveUpFromRank()">🏳️ 放棄遊戲</button>
             </div>
         </div>
     </div>
@@ -521,6 +556,7 @@
         };
 
         let currentDifficulty = '';
+        let lastPlayedDifficulty = 'easy'; // 🌟 紀錄剛玩過/正在玩的難度
         let initialBoard = null;
         let currentBoard = null;
         let moveHistory = [];
@@ -531,13 +567,14 @@
         function switchRankTab(diff) {
             window.currentRankTab = diff;
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`tab-${diff}`).classList.add('active');
+            const activeBtn = document.getElementById(`tab-${diff}`);
+            if (activeBtn) activeBtn.classList.add('active');
             if (window.renderLeaderboardUI) window.renderLeaderboardUI();
         }
 
         function openLeaderboard(source = 'home') {
-            if (isGameStarted && currentDifficulty) switchRankTab(currentDifficulty);
-            else switchRankTab('easy');
+            // 🌟 精準切換至當前或剛剛挑戰的難度頁籤
+            switchRankTab(lastPlayedDifficulty || 'easy');
 
             const btnHome = document.getElementById('btnRankHome');
             const btnContinue = document.getElementById('btnRankContinue');
@@ -546,10 +583,10 @@
             if (source === 'game') {
                 if (isGameStarted && !gameFinished && !isPaused) togglePause();
                 btnHome.style.display = 'none';
-                btnContinue.style.display = 'inline-block';
-                btnGiveUp.style.display = 'inline-block';
+                btnContinue.style.display = 'flex';
+                btnGiveUp.style.display = 'flex';
             } else {
-                btnHome.style.display = 'inline-block';
+                btnHome.style.display = 'flex';
                 btnContinue.style.display = 'none';
                 btnGiveUp.style.display = 'none';
             }
@@ -588,6 +625,7 @@
             }
 
             currentDifficulty = diffSelect;
+            lastPlayedDifficulty = diffSelect; // 🌟 記憶挑戰難度
             initialBoard = puzzles[currentDifficulty];
             currentBoard = JSON.parse(JSON.stringify(initialBoard));
 

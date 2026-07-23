@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <!-- 設定響應式網頁 RWD，完美適配手機與電腦螢幕 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>網頁版數獨小遊戲 6.0 (無限隨機與雙欄響應版)</title>
+    <title>網頁版數獨小遊戲 7.0 (一鍵切換版面與無限隨機版)</title>
     
-    <!-- CSS 樣式區塊：定義全螢幕 RWD 與動態佈局 -->
+    <!-- CSS 樣式區塊：定義全螢幕 RWD、動態佈局與右上角切換按鈕 -->
     <style>
         /* 1. 設定所有元素的盒子模型與觸控優化 */
         * {
@@ -35,7 +35,26 @@
             font-size: 24px;
         }
 
-        /* 4. 首頁設定卡片面板 (手機直向置中寬度) */
+        /* 4. 螢幕模式強制切換按鈕 (固定於右上角) */
+        .mode-toggle-btn {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: bold;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: background 0.2s;
+        }
+        .mode-toggle-btn:hover { background: #5a6268; }
+
+        /* 5. 首頁設定卡片面板 (手機直向置中寬度) */
         .controls {
             display: flex;
             flex-direction: column;
@@ -48,7 +67,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        /* 5. 輸入框與下拉選單群組 */
+        /* 6. 輸入框與下拉選單群組 */
         .form-group {
             display: flex;
             flex-direction: column;
@@ -59,7 +78,7 @@
             font-size: 14px;
         }
 
-        /* 6. 輸入欄位本體樣式 (防 iOS 縮放) */
+        /* 7. 輸入欄位本體樣式 (防 iOS 縮放) */
         input[type="text"].player-input, select {
             width: 100%;
             padding: 10px 12px;
@@ -69,7 +88,7 @@
             outline: none;
         }
 
-        /* 7. 主按鈕樣式 (開始遊戲) */
+        /* 8. 主按鈕樣式 (開始遊戲) */
         .btn-main-action {
             width: 100%;
             padding: 12px;
@@ -84,7 +103,7 @@
         }
         .btn-main-action:hover { background-color: #0056b3; }
 
-        /* 8. 英雄榜按鈕樣式 */
+        /* 9. 英雄榜按鈕樣式 */
         .btn-rank-home {
             width: 100%;
             padding: 12px;
@@ -97,7 +116,7 @@
             cursor: pointer;
         }
 
-        /* 9. 遊戲中頂部資訊欄 (玩家姓名與計時器) */
+        /* 10. 遊戲中頂部資訊欄 (玩家姓名與計時器) */
         .info-bar {
             display: none;
             justify-content: space-between;
@@ -111,7 +130,7 @@
         }
         .timer-box { color: #d9534f; }
 
-        /* 10. 遊戲主容器區塊 (手機預設直向單欄) */
+        /* 11. 遊戲主容器區塊 (手機預設直向單欄) */
         .game-container {
             display: none;
             flex-direction: column;
@@ -126,7 +145,7 @@
             max-width: 430px;
         }
 
-        /* 11. 81格數獨棋盤網格設定 */
+        /* 12. 81格數獨棋盤網格設定 */
         .grid {
             display: grid;
             grid-template-columns: repeat(9, 1fr);
@@ -140,7 +159,7 @@
             box-sizing: border-box;
         }
 
-        /* 12. 單一棋盤格子樣式 (純 div 封印手機鍵盤) */
+        /* 13. 單一棋盤格子樣式 (純 div 封印手機鍵盤) */
         .cell {
             display: flex;
             justify-content: center;
@@ -154,17 +173,17 @@
             -webkit-user-select: none;
         }
 
-        /* 13. 九宮格粗邊框定義 */
+        /* 14. 九宮格粗邊框定義 */
         .border-right-thick { border-right: 2.5px solid #000 !important; }
         .border-bottom-thick { border-bottom: 2.5px solid #000 !important; }
 
-        /* 14. 棋盤格子狀態變化類別 */
+        /* 15. 棋盤格子狀態變化類別 */
         .given { background-color: #f8f9fa; color: #333 !important; }
         .selected { background-color: #bbdefb !important; }
         .same-number { background-color: #fff9c4 !important; }
         .conflict { background-color: #ffcccc !important; color: #dc3545 !important; }
 
-        /* 15. 1-9 數字鍵盤橫排佈局 */
+        /* 16. 1-9 數字鍵盤橫排佈局 (預設手機版：橫向一整排) */
         .numpad {
             display: flex;
             justify-content: space-between;
@@ -193,7 +212,7 @@
             opacity: 0.5;
         }
 
-        /* 16. 功能按鈕區 (雙行排版) */
+        /* 17. 功能按鈕區 (雙行排版) */
         .action-buttons-mobile {
             display: flex;
             flex-direction: column;
@@ -225,7 +244,7 @@
         .btn-danger { background-color: #dc3545; }
         .btn-purple { background-color: #6f42c1; }
 
-        /* 17. 暫停畫面遮罩層 */
+        /* 18. 暫停畫面遮罩層 */
         .pause-overlay {
             display: none;
             position: absolute;
@@ -240,7 +259,7 @@
             color: #333;
         }
 
-        /* 18. 排行榜彈窗外層遮罩 */
+        /* 19. 排行榜彈窗外層遮罩 */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -252,7 +271,7 @@
             padding: 15px;
         }
 
-        /* 19. 排行榜彈窗內容容器 */
+        /* 20. 排行榜彈窗內容容器 */
         .modal-content {
             background: white;
             padding: 20px 16px;
@@ -267,7 +286,7 @@
 
         .modal-header h2 { margin: 0; font-size: 19px; color: #333; text-align: center; }
 
-        /* 20. 排行榜難度切換分頁 Tab */
+        /* 21. 排行榜難度切換分頁 Tab */
         .tab-container {
             display: flex;
             gap: 4px;
@@ -294,7 +313,7 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        /* 21. 排行榜可滾動列表區域 */
+        /* 22. 排行榜可滾動列表區域 */
         .leaderboard-scroll-area {
             overflow-y: auto;
             max-height: 240px;
@@ -319,7 +338,7 @@
         .rank-name { text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 130px; font-weight: 500; }
         .rank-time { color: #d9534f; font-weight: bold; }
 
-        /* 22. 彈窗底部美化膠囊按鈕區 */
+        /* 23. 彈窗底部美化膠囊按鈕區 */
         .modal-footer {
             display: flex;
             gap: 10px;
@@ -350,48 +369,98 @@
         .modal-footer button:active { transform: scale(0.96); }
 
         /* ==========================================================
-           🌟 23. 電腦大螢幕響應式媒體查詢 (Media Query: 寬度 >= 768px)
-           自動將介面切換回漂亮的電腦版雙欄寬螢幕配置！
+           🌟 24. 電腦大螢幕響應式與強制切換佈局控制
            ========================================================== */
+
+        /* 自動 RWD 模式 (預設螢幕寬度 >= 768px 時觸發) */
         @media (min-width: 768px) {
-            .controls {
+            body:not(.force-mobile):not(.force-desktop) .controls {
                 max-width: 450px;
                 padding: 30px;
             }
-            .game-container {
-                max-width: 720px; /* 電腦版容器加寬 */
-                flex-direction: row; /* 左右並排佈局 */
+            body:not(.force-mobile):not(.force-desktop) .game-container {
+                max-width: 720px;
+                flex-direction: row;
                 align-items: flex-start;
                 justify-content: center;
                 gap: 20px;
                 padding: 20px;
             }
-            .grid {
-                max-width: 420px; /* 棋盤大小固定 */
+            body:not(.force-mobile):not(.force-desktop) .grid {
+                max-width: 420px;
             }
-            .info-bar {
+            body:not(.force-mobile):not(.force-desktop) .info-bar {
                 max-width: 720px;
             }
-            /* 右側控制面板 (包含數字鍵與功能按鈕) */
-            .right-panel {
+            body:not(.force-mobile):not(.force-desktop) .right-panel {
                 display: flex;
                 flex-direction: column;
                 gap: 15px;
                 width: 260px;
             }
-            .numpad {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr); /* 電腦版數字鍵改為 3x3 矩陣更方便點擊 */
-                gap: 6px;
+            /* 電腦版數位鍵保持橫排 (改回漂亮的 1x9 橫排，或維持橫向舒適佈局) */
+            body:not(.force-mobile):not(.force-desktop) .numpad {
+                display: flex;
+                justify-content: space-between;
+                flex-direction: row;
             }
-            .num-btn {
-                height: 50px;
-                font-size: 20px;
+            body:not(.force-mobile):not(.force-desktop) .num-btn {
+                height: 42px;
+                font-size: 18px;
             }
+        }
+
+        /* 💻 強制電腦雙欄模式 (無視窗限制，永遠左右並排且鍵盤舒適橫排) */
+        body.force-desktop .controls {
+            max-width: 450px;
+            padding: 30px;
+        }
+        body.force-desktop .game-container {
+            max-width: 720px !important;
+            flex-direction: row !important;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+        }
+        body.force-desktop .grid {
+            max-width: 420px !important;
+        }
+        body.force-desktop .info-bar {
+            max-width: 720px !important;
+        }
+        body.force-desktop .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 260px;
+        }
+        body.force-desktop .numpad {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between;
+        }
+        body.force-desktop .num-btn {
+            height: 42px !important;
+            font-size: 18px !important;
+        }
+
+        /* 📱 強制手機直排模式 (無視窗限制，永遠直向滿版單欄) */
+        body.force-mobile .game-container {
+            flex-direction: column !important;
+            max-width: 430px !important;
+        }
+        body.force-mobile .numpad {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between;
         }
     </style>
 </head>
 <body>
+
+    <!-- 右上角一鍵手動切換版面按鈕 -->
+    <button class="mode-toggle-btn" id="modeToggleBtn" onclick="toggleViewMode()">⚙️ 自動適配</button>
 
     <!-- 網頁全域大標題 -->
     <h1>🧩 網頁線上數獨</h1>
@@ -424,7 +493,7 @@
         <div class="timer-box">⏱️ 用時：<span id="timer">00:00</span></div>
     </div>
 
-    <!-- 🎮 遊戲主介面容器 (電腦版會自動變為左右雙欄) -->
+    <!-- 🎮 遊戲主介面容器 -->
     <div class="game-container" id="gameContainer">
         <!-- 遊戲暫停遮罩 -->
         <div class="pause-overlay" id="pauseOverlay">⏸️ 遊戲暫停中</div>
@@ -432,7 +501,7 @@
         <!-- 81格數獨棋盤渲染目標 (左側) -->
         <div id="board" class="grid"></div>
 
-        <!-- 右側控制面板群組 (電腦版並排用) -->
+        <!-- 右側控制面板群組 -->
         <div class="right-panel">
             <!-- 1~9 數字鍵盤 -->
             <div class="numpad" id="numpad"></div>
@@ -556,9 +625,9 @@
         };
     </script>
 
-    <!-- 遊戲核心 JavaScript 邏輯控制 (含無限隨機母題變形演算法) -->
+    <!-- 遊戲核心 JavaScript 邏輯控制 -->
     <script>
-        /* 基礎標準母題庫 (透過智慧變形演算法，每次點擊都能衍生出無限多種新局) */
+        /* 基礎標準母題庫 */
         const basePuzzles = {
             easy: [
                 [0, 0, 0, 2, 6, 0, 7, 0, 1], [6, 8, 0, 0, 7, 0, 0, 9, 0], [1, 9, 0, 0, 0, 4, 5, 0, 0],
@@ -591,12 +660,32 @@
         let timerInterval = null, secondsElapsed = 0;
         let gameFinished = false, isPaused = false, isGameStarted = false;
 
-        /* 🌟 智慧亂數變形演算法：將母題進行隨機數字置換與鏡射，達成無限新題目效果 */
+        /* 🌟 右上角一鍵切換視圖模式邏輯 (自動 -> 強制電腦 -> 強制手機) */
+        function toggleViewMode() {
+            const body = document.body;
+            const btn = document.getElementById('modeToggleBtn');
+
+            if (!body.classList.contains('force-desktop') && !body.classList.contains('force-mobile')) {
+                // 目前是自動適配 -> 切換為強制電腦雙欄
+                body.classList.add('force-desktop');
+                btn.innerText = '💻 強制電腦版';
+            } else if (body.classList.contains('force-desktop')) {
+                // 目前是強制電腦 -> 切換為強制手機直排
+                body.classList.remove('force-desktop');
+                body.classList.add('force-mobile');
+                btn.innerText = '📱 強制手機版';
+            } else {
+                // 目前是強制手機 -> 恢復自動 RWD
+                body.classList.remove('force-mobile');
+                btn.innerText = '⚙️ 自動適配';
+            }
+        }
+
+        /* 智慧亂數變形演算法 */
         function generateRandomizedPuzzle(difficulty) {
             const base = basePuzzles[difficulty];
             const board = JSON.parse(JSON.stringify(base));
 
-            /* 1. 建立 1~9 的隨機數字對應表 (例如 1 變 4, 4 變 9...) */
             const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
             for (let i = nums.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -608,12 +697,10 @@
             }
             mapTable[0] = 0;
 
-            /* 2. 套用數字映射與隨機左右鏡射翻轉 */
             const flipH = Math.random() < 0.5;
             for (let r = 0; r < 9; r++) {
                 for (let c = 0; c < 9; c++) {
                     const targetC = flipH ? (8 - c) : c;
-                    // 同步套用對應表
                     board[r][targetC] = mapTable[base[r][c]];
                 }
             }
@@ -682,7 +769,6 @@
             currentDifficulty = diffSelect;
             lastPlayedDifficulty = diffSelect;
             
-            /* 每次開始遊戲，透過亂數變形演算法即時生成一張全新的隨機棋盤！ */
             initialBoard = generateRandomizedPuzzle(currentDifficulty);
             currentBoard = JSON.parse(JSON.stringify(initialBoard));
 

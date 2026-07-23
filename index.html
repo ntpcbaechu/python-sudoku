@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <!-- 設定響應式網頁 RWD，完美適配手機與電腦螢幕 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>網頁版數獨小遊戲 7.0 (一鍵切換版面與無限隨機版)</title>
+    <title>網頁版數獨小遊戲 9.0 (經典三欄精緻排版)</title>
     
-    <!-- CSS 樣式區塊：定義全螢幕 RWD、動態佈局與右上角切換按鈕 -->
+    <!-- CSS 樣式區塊：定義三欄式精準佈局與低調切換按鈕 -->
     <style>
         /* 1. 設定所有元素的盒子模型與觸控優化 */
         * {
@@ -35,26 +35,7 @@
             font-size: 24px;
         }
 
-        /* 4. 螢幕模式強制切換按鈕 (固定於右上角) */
-        .mode-toggle-btn {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            z-index: 1000;
-            padding: 6px 12px;
-            font-size: 12px;
-            font-weight: bold;
-            background: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            transition: background 0.2s;
-        }
-        .mode-toggle-btn:hover { background: #5a6268; }
-
-        /* 5. 首頁設定卡片面板 (手機直向置中寬度) */
+        /* 4. 首頁設定卡片面板 (手機直向置中寬度) */
         .controls {
             display: flex;
             flex-direction: column;
@@ -67,7 +48,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        /* 6. 輸入框與下拉選單群組 */
+        /* 5. 輸入框與下拉選單群組 */
         .form-group {
             display: flex;
             flex-direction: column;
@@ -78,7 +59,7 @@
             font-size: 14px;
         }
 
-        /* 7. 輸入欄位本體樣式 (防 iOS 縮放) */
+        /* 6. 輸入欄位本體樣式 (防 iOS 縮放) */
         input[type="text"].player-input, select {
             width: 100%;
             padding: 10px 12px;
@@ -88,7 +69,7 @@
             outline: none;
         }
 
-        /* 8. 主按鈕樣式 (開始遊戲) */
+        /* 7. 主按鈕樣式 (開始遊戲) */
         .btn-main-action {
             width: 100%;
             padding: 12px;
@@ -103,7 +84,7 @@
         }
         .btn-main-action:hover { background-color: #0056b3; }
 
-        /* 9. 英雄榜按鈕樣式 */
+        /* 8. 英雄榜按鈕樣式 */
         .btn-rank-home {
             width: 100%;
             padding: 12px;
@@ -116,12 +97,25 @@
             cursor: pointer;
         }
 
+        /* 9. 底部低調切換按鈕樣式 */
+        .mode-toggle-footer {
+            margin-top: 15px;
+            background: transparent;
+            border: none;
+            color: #888;
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 5px;
+        }
+        .mode-toggle-footer:hover { color: #555; }
+
         /* 10. 遊戲中頂部資訊欄 (玩家姓名與計時器) */
         .info-bar {
             display: none;
             justify-content: space-between;
             width: 100%;
-            max-width: 410px;
+            max-width: 620px;
             font-size: 16px;
             font-weight: bold;
             color: #444;
@@ -159,7 +153,7 @@
             box-sizing: border-box;
         }
 
-        /* 13. 單一棋盤格子樣式 (純 div 封印手機鍵盤) */
+        /* 13. 單一棋盤格子樣式 */
         .cell {
             display: flex;
             justify-content: center;
@@ -183,7 +177,7 @@
         .same-number { background-color: #fff9c4 !important; }
         .conflict { background-color: #ffcccc !important; color: #dc3545 !important; }
 
-        /* 16. 1-9 數字鍵盤橫排佈局 (預設手機版：橫向一整排) */
+        /* 16. 1-9 數字鍵盤手機預設橫排 */
         .numpad {
             display: flex;
             justify-content: space-between;
@@ -212,7 +206,7 @@
             opacity: 0.5;
         }
 
-        /* 17. 功能按鈕區 (雙行排版) */
+        /* 17. 功能按鈕區 (手機預設排版) */
         .action-buttons-mobile {
             display: flex;
             flex-direction: column;
@@ -369,98 +363,138 @@
         .modal-footer button:active { transform: scale(0.96); }
 
         /* ==========================================================
-           🌟 24. 電腦大螢幕響應式與強制切換佈局控制
+           🌟 24. 電腦大螢幕三欄完美經典佈局 (支援強制切換與自動 RWD)
            ========================================================== */
-
-        /* 自動 RWD 模式 (預設螢幕寬度 >= 768px 時觸發) */
         @media (min-width: 768px) {
-            body:not(.force-mobile):not(.force-desktop) .controls {
+            body:not(.force-mobile) .controls {
                 max-width: 450px;
                 padding: 30px;
             }
-            body:not(.force-mobile):not(.force-desktop) .game-container {
-                max-width: 720px;
-                flex-direction: row;
-                align-items: flex-start;
+            body:not(.force-mobile) .game-container {
+                max-width: 620px !important;
+                flex-direction: row !important;
+                align-items: stretch !important;
                 justify-content: center;
-                gap: 20px;
+                gap: 15px;
                 padding: 20px;
             }
-            body:not(.force-mobile):not(.force-desktop) .grid {
-                max-width: 420px;
+            body:not(.force-mobile) .grid {
+                max-width: 380px !important;
+                height: 380px !important;
             }
-            body:not(.force-mobile):not(.force-desktop) .info-bar {
-                max-width: 720px;
+            body:not(.force-mobile) .info-bar {
+                max-width: 620px !important;
             }
-            body:not(.force-mobile):not(.force-desktop) .right-panel {
-                display: flex;
+            
+            /* 三欄式架構的右側控制面板容器 */
+            body:not(.force-mobile) .right-panel-desktop {
+                display: flex !important;
+                flex-direction: row !important;
+                gap: 12px;
+                align-items: stretch;
+            }
+
+            /* 中間欄位：1~9 數字鍵直排並平均分散 */
+            body:not(.force-mobile) .desktop-numpad-col {
+                display: flex !important;
                 flex-direction: column;
-                gap: 15px;
-                width: 260px;
-            }
-            /* 電腦版數位鍵保持橫排 (改回漂亮的 1x9 橫排，或維持橫向舒適佈局) */
-            body:not(.force-mobile):not(.force-desktop) .numpad {
-                display: flex;
                 justify-content: space-between;
-                flex-direction: row;
+                width: 55px;
             }
-            body:not(.force-mobile):not(.force-desktop) .num-btn {
-                height: 42px;
+            body:not(.force-mobile) .desktop-numpad-col .num-btn {
+                width: 55px;
+                height: 35px;
                 font-size: 18px;
             }
+
+            /* 右側欄位：暫停置頂、復原/清除/放棄置中群組、排行榜置底 */
+            body:not(.force-mobile) .desktop-action-col {
+                display: flex !important;
+                flex-direction: column;
+                justify-content: space-between;
+                width: 110px;
+            }
+            body:not(.force-mobile) .desktop-action-col button {
+                width: 100%;
+                padding: 8px 4px;
+                font-size: 13px;
+                font-weight: bold;
+                border-radius: 6px;
+                border: none;
+                cursor: pointer;
+                color: white;
+            }
+            /* 復原清除放棄群組置中對齊 */
+            body:not(.force-mobile) .desktop-middle-group {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                gap: 6px;
+            }
         }
 
-        /* 💻 強制電腦雙欄模式 (無視窗限制，永遠左右並排且鍵盤舒適橫排) */
-        body.force-desktop .controls {
-            max-width: 450px;
-            padding: 30px;
-        }
+        /* 💻 強制電腦雙欄/三欄模式 (無視窗限制) */
+        body.force-desktop .controls { max-width: 450px; padding: 30px; }
         body.force-desktop .game-container {
-            max-width: 720px !important;
+            max-width: 620px !important;
             flex-direction: row !important;
-            align-items: flex-start;
+            align-items: stretch !important;
             justify-content: center;
-            gap: 20px;
+            gap: 15px;
             padding: 20px;
         }
-        body.force-desktop .grid {
-            max-width: 420px !important;
-        }
-        body.force-desktop .info-bar {
-            max-width: 720px !important;
-        }
-        body.force-desktop .right-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 260px;
-        }
-        body.force-desktop .numpad {
+        body.force-desktop .grid { max-width: 380px !important; height: 380px !important; }
+        body.force-desktop .info-bar { max-width: 620px !important; }
+        body.force-desktop .right-panel-desktop {
             display: flex !important;
             flex-direction: row !important;
-            justify-content: space-between;
+            gap: 12px;
+            align-items: stretch;
         }
-        body.force-desktop .num-btn {
-            height: 42px !important;
-            font-size: 18px !important;
+        body.force-desktop .desktop-numpad-col {
+            display: flex !important;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 55px;
+        }
+        body.force-desktop .desktop-numpad-col .num-btn {
+            width: 55px;
+            height: 35px;
+            font-size: 18px;
+        }
+        body.force-desktop .desktop-action-col {
+            display: flex !important;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 110px;
+        }
+        body.force-desktop .desktop-action-col button {
+            width: 100%;
+            padding: 8px 4px;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            color: white;
+        }
+        body.force-desktop .desktop-middle-group {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 6px;
         }
 
-        /* 📱 強制手機直排模式 (無視窗限制，永遠直向滿版單欄) */
+        /* 📱 強制手機直排模式 (隱藏電腦版三欄，顯示手機版直排) */
         body.force-mobile .game-container {
             flex-direction: column !important;
             max-width: 430px !important;
         }
-        body.force-mobile .numpad {
-            display: flex !important;
-            flex-direction: row !important;
-            justify-content: space-between;
-        }
+        body.force-mobile .right-panel-desktop { display: none !important; }
+        body.force-mobile .right-panel-mobile { display: flex !important; flex-direction: column; gap: 10px; width: 100%; }
     </style>
 </head>
 <body>
-
-    <!-- 右上角一鍵手動切換版面按鈕 -->
-    <button class="mode-toggle-btn" id="modeToggleBtn" onclick="toggleViewMode()">⚙️ 自動適配</button>
 
     <!-- 網頁全域大標題 -->
     <h1>🧩 網頁線上數獨</h1>
@@ -487,6 +521,9 @@
         <button class="btn-rank-home" onclick="openLeaderboard('home')">🏆 英雄榜</button>
     </div>
 
+    <!-- 首頁底部低調切換按鈕 -->
+    <button class="mode-toggle-footer" id="homeModeToggleBtn" onclick="toggleViewMode()">⚙️ 切換顯示模式 (自動適配)</button>
+
     <!-- 遊戲中頂部玩家與計時狀態列 -->
     <div class="info-bar" id="infoBar">
         <div>👤 玩家：<span id="playerDisplay">匿名玩家</span></div>
@@ -501,15 +538,31 @@
         <!-- 81格數獨棋盤渲染目標 (左側) -->
         <div id="board" class="grid"></div>
 
-        <!-- 右側控制面板群組 -->
-        <div class="right-panel">
-            <!-- 1~9 數字鍵盤 -->
-            <div class="numpad" id="numpad"></div>
+        <!-- 💻 電腦版專用三欄控制區 (左棋盤、中 1-9 直排均分、右按鈕區) -->
+        <div class="right-panel-desktop" id="desktopPanel" style="display: none;">
+            <!-- 中間欄：1~9 數字鍵直排 (平均分散) -->
+            <div class="desktop-numpad-col" id="desktopNumpad"></div>
 
-            <!-- 功能按鈕雙行區塊 -->
+            <!-- 右側欄：暫停(置頂)、復原/清除/放棄(群組置中)、排行榜(置底) -->
+            <div class="desktop-action-col">
+                <button class="btn-warning" id="desktopPauseBtn" onclick="togglePause()">⏸️ 暫停</button>
+                
+                <div class="desktop-middle-group">
+                    <button class="btn-info" onclick="undoMove()">↩️ 復原</button>
+                    <button class="btn-secondary" onclick="clearBoardKeepTimer()">🧹 清除</button>
+                    <button class="btn-danger" onclick="giveUp()">🏳️ 放棄</button>
+                </div>
+
+                <button class="btn-purple" onclick="openLeaderboard('game')">🏆 排行榜</button>
+            </div>
+        </div>
+
+        <!-- 📱 手機版專用控制區 (直向排版備用) -->
+        <div class="right-panel-mobile" id="mobilePanel" style="display: none;">
+            <div class="numpad" id="mobileNumpad"></div>
             <div class="action-buttons-mobile">
                 <div class="btn-row">
-                    <button class="btn-warning" id="pauseBtn" onclick="togglePause()">⏸️ 暫停</button>
+                    <button class="btn-warning" id="mobilePauseBtn" onclick="togglePause()">⏸️ 暫停</button>
                     <button class="btn-purple" onclick="openLeaderboard('game')">🏆 排名</button>
                 </div>
                 <div class="btn-row">
@@ -520,6 +573,9 @@
             </div>
         </div>
     </div>
+
+    <!-- 遊戲畫面下方低調切換按鈕 -->
+    <button class="mode-toggle-footer" id="gameModeToggleBtn" onclick="toggleViewMode()" style="display: none;">⚙️ 切換顯示模式 (自動適配)</button>
 
     <!-- 🏆 英雄榜彈窗視窗 -->
     <div class="modal-overlay" id="rankModal">
@@ -660,25 +716,25 @@
         let timerInterval = null, secondsElapsed = 0;
         let gameFinished = false, isPaused = false, isGameStarted = false;
 
-        /* 🌟 右上角一鍵切換視圖模式邏輯 (自動 -> 強制電腦 -> 強制手機) */
+        /* 🌟 切換顯示模式邏輯 (自動 -> 強制電腦 -> 強制手機) */
         function toggleViewMode() {
             const body = document.body;
-            const btn = document.getElementById('modeToggleBtn');
+            let statusText = "⚙️ 切換顯示模式 (自動適配)";
 
             if (!body.classList.contains('force-desktop') && !body.classList.contains('force-mobile')) {
-                // 目前是自動適配 -> 切換為強制電腦雙欄
                 body.classList.add('force-desktop');
-                btn.innerText = '💻 強制電腦版';
+                statusText = "⚙️ 切換顯示模式 (強制電腦版)";
             } else if (body.classList.contains('force-desktop')) {
-                // 目前是強制電腦 -> 切換為強制手機直排
                 body.classList.remove('force-desktop');
                 body.classList.add('force-mobile');
-                btn.innerText = '📱 強制手機版';
+                statusText = "⚙️ 切換顯示模式 (強制手機版)";
             } else {
-                // 目前是強制手機 -> 恢復自動 RWD
                 body.classList.remove('force-mobile');
-                btn.innerText = '⚙️ 自動適配';
+                statusText = "⚙️ 切換顯示模式 (自動適配)";
             }
+
+            document.getElementById('homeModeToggleBtn').innerText = statusText;
+            document.getElementById('gameModeToggleBtn').innerText = statusText;
         }
 
         /* 智慧亂數變形演算法 */
@@ -774,13 +830,17 @@
 
             document.getElementById('playerDisplay').innerText = nameInput;
             document.getElementById('controlsBlock').style.display = 'none';
+            document.getElementById('homeModeToggleBtn').style.display = 'none'; // 首頁按鈕隱藏
+            
             document.getElementById('infoBar').style.display = 'flex';
             document.getElementById('gameContainer').style.display = 'flex';
+            document.getElementById('gameModeToggleBtn').style.display = 'block'; // 遊戲下方按鈕顯示
 
             isGameStarted = true;
             isPaused = false;
             document.getElementById('pauseOverlay').style.display = 'none';
-            document.getElementById('pauseBtn').innerHTML = '⏸️ 暫停';
+            document.getElementById('desktopPauseBtn').innerHTML = '⏸️ 暫停';
+            document.getElementById('mobilePauseBtn').innerHTML = '⏸️ 暫停';
 
             startTimer();
             resetBoardStateOnly();
@@ -793,7 +853,10 @@
 
             document.getElementById('gameContainer').style.display = 'none';
             document.getElementById('infoBar').style.display = 'none';
+            document.getElementById('gameModeToggleBtn').style.display = 'none'; // 遊戲下方按鈕隱藏
+
             document.getElementById('controlsBlock').style.display = 'flex';
+            document.getElementById('homeModeToggleBtn').style.display = 'block'; // 首頁按鈕顯示
             document.getElementById('difficulty').selectedIndex = 0;
         }
 
@@ -857,15 +920,11 @@
             if (!isGameStarted || gameFinished) return;
             isPaused = !isPaused;
             const overlay = document.getElementById('pauseOverlay');
-            const pauseBtn = document.getElementById('pauseBtn');
+            const btnText = isPaused ? '▶ 繼續' : '⏸️ 暫停';
 
-            if (isPaused) {
-                overlay.style.display = 'flex';
-                pauseBtn.innerHTML = '▶ 繼續';
-            } else {
-                overlay.style.display = 'none';
-                pauseBtn.innerHTML = '⏸️ 暫停';
-            }
+            overlay.style.display = isPaused ? 'flex' : 'none';
+            document.getElementById('desktopPauseBtn').innerHTML = btnText;
+            document.getElementById('mobilePauseBtn').innerHTML = btnText;
         }
 
         function renderBoard() {
@@ -893,37 +952,77 @@
                     boardElement.appendChild(cell);
                 }
             }
-            createNumpad();
+            createNumpads();
             handleBoardChange();
         }
 
         function handleBoardChange() {
             const hasConflict = checkConflicts();
-            updateNumpad();
+            updateNumpadsState();
             if (selectedCell) highlightSameNumbers(currentBoard[selectedCell.r][selectedCell.c]);
             checkWinCondition(hasConflict);
         }
 
-        function createNumpad() {
-            const numpad = document.getElementById('numpad');
-            numpad.innerHTML = '';
+        function createNumpads() {
+            // 建立電腦版三欄中間的直排數字鍵
+            const desktopNumpad = document.getElementById('desktopNumpad');
+            desktopNumpad.innerHTML = '';
+            
+            // 建立手機版橫排數字鍵
+            const mobileNumpad = document.getElementById('mobileNumpad');
+            mobileNumpad.innerHTML = '';
+
             for (let i = 1; i <= 9; i++) {
-                const btn = document.createElement('button');
-                btn.className = 'num-btn';
-                btn.id = `num-btn-${i}`;
-                btn.innerText = i;
-                btn.onclick = function() {
-                    if (gameFinished || isPaused || !selectedCell) return;
-                    const { r, c } = selectedCell;
-                    if (initialBoard[r][c] === 0) {
-                        const oldVal = currentBoard[r][c];
-                        currentBoard[r][c] = i;
-                        document.getElementById(`cell-${r}-${c}`).innerText = i;
-                        recordMove(r, c, oldVal, i);
-                        handleBoardChange();
-                    }
-                };
-                numpad.appendChild(btn);
+                // 電腦版直排按鈕
+                const dBtn = document.createElement('button');
+                dBtn.className = 'num-btn';
+                dBtn.id = `desktop-num-${i}`;
+                dBtn.innerText = i;
+                dBtn.onclick = () => handleNumberInput(i);
+                desktopNumpad.appendChild(dBtn);
+
+                // 手機版橫排按鈕
+                const mBtn = document.createElement('button');
+                mBtn.className = 'num-btn';
+                mBtn.id = `mobile-num-${i}`;
+                mBtn.innerText = i;
+                mBtn.onclick = () => handleNumberInput(i);
+                mobileNumpad.appendChild(mBtn);
+            }
+            
+            // 動態控制螢幕寬度對應的顯示面板
+            updatePanelVisibility();
+        }
+
+        function updatePanelVisibility() {
+            const isForcedMobile = document.body.classList.contains('force-mobile');
+            const isForcedDesktop = document.body.classList.contains('force-desktop');
+            const isWide = window.innerWidth >= 768;
+
+            const desktopPanel = document.getElementById('desktopPanel');
+            const mobilePanel = document.getElementById('mobilePanel');
+
+            if (isForcedMobile) {
+                desktopPanel.style.display = 'none';
+                mobilePanel.style.display = 'flex';
+            } else if (isForcedDesktop || isWide) {
+                desktopPanel.style.display = 'flex';
+                mobilePanel.style.display = 'none';
+            } else {
+                desktopPanel.style.display = 'none';
+                mobilePanel.style.display = 'flex';
+            }
+        }
+
+        function handleNumberInput(i) {
+            if (gameFinished || isPaused || !selectedCell) return;
+            const { r, c } = selectedCell;
+            if (initialBoard[r][c] === 0) {
+                const oldVal = currentBoard[r][c];
+                currentBoard[r][c] = i;
+                document.getElementById(`cell-${r}-${c}`).innerText = i;
+                recordMove(r, c, oldVal, i);
+                handleBoardChange();
             }
         }
 
@@ -979,7 +1078,7 @@
             return anyConflict;
         }
 
-        function updateNumpad() {
+        function updateNumpadsState() {
             for (let num = 1; num <= 9; num++) {
                 let count = 0, hasConflict = false;
                 for (let r = 0; r < 9; r++) {
@@ -990,8 +1089,11 @@
                         }
                     }
                 }
-                const btn = document.getElementById(`num-btn-${num}`);
-                if (btn) btn.disabled = (count >= 9 && !hasConflict);
+                const disabled = (count >= 9 && !hasConflict);
+                const dBtn = document.getElementById(`desktop-num-${num}`);
+                const mBtn = document.getElementById(`mobile-num-${num}`);
+                if (dBtn) dBtn.disabled = disabled;
+                if (mBtn) mBtn.disabled = disabled;
             }
         }
 
@@ -1026,9 +1128,15 @@
             selectedCell = null;
             isPaused = false;
             document.getElementById('pauseOverlay').style.display = 'none';
-            document.getElementById('pauseBtn').innerHTML = '⏸️ 暫停';
+            document.getElementById('desktopPauseBtn').innerHTML = '⏸️ 暫停';
+            document.getElementById('mobilePauseBtn').innerHTML = '⏸️ 暫停';
             renderBoard();
         }
+
+        // 監聽視窗大小變動以自動切換面板顯示
+        window.addEventListener('resize', () => {
+            if (isGameStarted) updatePanelVisibility();
+        });
     </script>
 </body>
 </html>
